@@ -4,7 +4,7 @@ from rrt_rl_2D.controllers.cable_controller import CableController
 from rrt_rl_2D.controllers.rect_controller import RectController
 
 
-class MyMap(RectangleEmpty, ResetableEmpty, StandardStones):
+class MyMap(RectangleEmpty, ResetableEmpty, NonConvex):
     pass
 
 
@@ -12,6 +12,7 @@ m = MyMap()
 sim = m.sim
 dr = DebugRenderer()
 controller = RectController(m.agent)
+# controller = CableController(m.agent)
 
 dr.attach_controller(controller)
 sim.attach_renderer(dr)

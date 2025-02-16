@@ -88,6 +88,11 @@ class Empty:
 
 
 class ResetableEmpty(Empty):
+    """
+    Changes map to be resetable. Adds reset_start and reset_goal methods.
+    Must be placed after RectangleEmpty in the inheritance list.
+    """
+
     def reset_start(self):
         valid = False
         while not valid:
@@ -117,6 +122,12 @@ class ResetableEmpty(Empty):
 
 
 class RectangleEmpty(Empty):
+    """
+    When added as superclass before Empty, it will create a rectangle agent instead of a cable.
+    Must be placed before Empty in the inheritance list.
+    Must be placed before ResetableEmpty in the inheritance list.
+    """
+
     def _add_agent(self):
         self.agent = Rectangle(self.START, RECTDIM,
                                RECTDIM, pymunk.Body.DYNAMIC)
