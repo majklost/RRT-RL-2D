@@ -7,7 +7,7 @@ from ..assets import *
 
 
 class RectController(BaseController):
-    def __init__(self, rect: Rectangle, moving_force=500):
+    def __init__(self, rect: Rectangle, moving_force=2000):
         self.rect = rect
         self.moving_force = moving_force
 
