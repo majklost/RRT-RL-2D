@@ -78,6 +78,7 @@ class Cable(MultiBody):
             angle = np.arctan2(diff[1], diff[0])
             self.bodies[i].orientation = angle + np.pi
             prev = pos[i]
+            self.bodies[i].velocity = (0, 0)
 
     @property
     def orientation(self):

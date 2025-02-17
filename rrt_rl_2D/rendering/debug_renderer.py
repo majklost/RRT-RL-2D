@@ -4,7 +4,7 @@ from pymunk.pygame_util import DrawOptions
 
 from ..simulator.standard_config import STANDARD_CONFIG
 from ..simulator.simulator import Simulator
-from ..controllers.base_controller import BaseController
+from ..controllers.direct_controller import DirectController
 from .base_renderer import BaseRenderer
 
 
@@ -23,7 +23,7 @@ class DebugRenderer(BaseRenderer):
         if not render_constraints:
             self._options.flags = DrawOptions.DRAW_SHAPES
 
-    def attach_controller(self, controller: BaseController):
+    def attach_controller(self, controller: DirectController):
         self._controller = controller
 
     def _additional_drawings(self):

@@ -11,6 +11,7 @@ class StandardConfig(TypedDict):
     seg_num: int
     seed_env: int | None
     seed_plan: int | None
+    check_dimensions: Tuple[int, int] | int
 
 
 # Standard configuration for the environment
@@ -23,5 +24,6 @@ STANDARD_CONFIG: StandardConfig = {
     'cable_length': 300,
     'seg_num': 20,
     'seed_env': None,
-    'seed_plan': None
+    'seed_plan': None,
+    'check_dimensions': (10, 10)
 }

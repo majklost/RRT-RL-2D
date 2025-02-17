@@ -2,11 +2,11 @@ import pygame
 import numpy as np
 from pymunk.pygame_util import from_pygame
 
-from .base_controller import BaseController
+from .direct_controller import DirectController
 from ..assets import *
 
 
-class RectController(BaseController):
+class RectController(DirectController):
     def __init__(self, rect: Rectangle, moving_force=2000):
         self.rect = rect
         self.moving_force = moving_force
