@@ -48,7 +48,6 @@ class Empty:
     def _add_boundings(self):
         boundings = Boundings(self.cfg["width"], self.cfg["height"])
         self.fixed_objects.append(boundings)
- 
 
     def _create_sampler(self):
         lower_bounds = np.array([self.MARGIN, self.MARGIN, 0])
@@ -135,9 +134,15 @@ class RectangleEmpty(Empty):
     Must be placed before ResetableEmpty in the inheritance list.
     """
 
+    def _get_width(self):
+        return RECTDIM
+
+    def _get_height(self):
+        return RECTDIM
+
     def _add_agent(self):
-        self.agent = Rectangle(self.START, RECTDIM,
-                               RECTDIM, pymunk.Body.DYNAMIC)
+        self.agent = Rectangle(self.START, self._get_width(),
+                               self._get_height(), pymunk.Body.DYNAMIC)
 
         self.movable_objects.append(self.agent)
 

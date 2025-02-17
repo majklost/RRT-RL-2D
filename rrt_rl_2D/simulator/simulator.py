@@ -15,7 +15,7 @@ class Simulator:
 
     def __init__(self, movable_objects, fixed_objects, config: dict | None = STANDARD_CONFIG):
         self._space = pymunk.Space()
-
+        self.renderer = None
         self.movable_objects = movable_objects
         self.fixed_objects = fixed_objects
         self._steps = 0
