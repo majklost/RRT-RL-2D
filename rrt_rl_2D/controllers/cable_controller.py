@@ -2,19 +2,16 @@ import pygame
 import numpy as np
 from pymunk.pygame_util import from_pygame
 
-from .base_controller import BaseController
+from .direct_controller import DirectController
 from ..assets import *
 
 
-class CableController(BaseController):
+class CableController(DirectController):
     def __init__(self, cable: Cable, moving_force=300, color_change=True):
         self.cable = cable
         self.current = 0
         self.moving_force = moving_force
         self.color_change = color_change
-
-    def update(self):
-        return super().update()
 
     def _cur_next(self):
         new_idx = (self.current + 1) % len(self.cable.bodies)

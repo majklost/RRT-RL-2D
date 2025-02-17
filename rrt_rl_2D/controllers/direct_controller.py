@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 
 
-class BaseController(ABC):
+class DirectController(ABC):
+    """
+    Directly controls the simulation
+    """
 
     @abstractmethod
     def update(self):
