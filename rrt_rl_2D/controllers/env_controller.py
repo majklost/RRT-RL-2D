@@ -33,10 +33,9 @@ class EnvController(ABC):
             force_vector[1] = -1
         if keys[pygame.K_DOWN]:
             force_vector[1] = 1
-        force_vector = force_vector / np.linalg.norm(force_vector)
         return force_vector
 
-    def _process_events():
+    def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -58,7 +57,10 @@ class CableEnvController(EnvController):
         self._handle_events()
         template = np.zeros((self.segnum, 2))
         template[self.current] = force_vector
-        return template, None
+        return template.flatten().reshape(1, -1), None
+
+    def _set_current(self, index):
+        self.current = index
 
     def _cur_next(self):
         new_idx = (self.current + 1) % self.segnum
@@ -79,3 +81,10 @@ class CableEnvController(EnvController):
                     self._cur_prev()
                 elif event.key == pygame.K_TAB:
                     self._cur_next()
+
+
+class RectEnvController(EnvController):
+    def predict(self, obs):
+        force_vector = self._process_keys()
+        self._handle_events()
+        return force_vector.flatten().reshape(1, -1), None

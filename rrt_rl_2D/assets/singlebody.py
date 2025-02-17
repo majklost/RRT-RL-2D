@@ -31,6 +31,10 @@ class SingleBody:
         return self._body
 
     @property
+    def bodies(self):
+        return [self]
+
+    @property
     def density(self):
         return self._density
 

@@ -14,9 +14,9 @@ class EnvRenderer(BaseRenderer):
 
     def __init__(self, cfg: StandardConfig):
         pygame.init()
-        width = cfg.width
-        height = cfg.height
-        self.fps = cfg.fps
+        width = cfg['width']
+        height = cfg['height']
+        self.fps = cfg['fps']
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         self.options = DrawOptions(self.screen)
