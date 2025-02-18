@@ -15,7 +15,7 @@ from abc import abstractmethod
 class BaseEnv(gym.Env):
     metadata = {'render.modes': ['human', None]}
 
-    def __init__(self, cur_map: Empty, scale_factor, node_factory: NodeFactory, render_mode=None):
+    def __init__(self, cur_map: Empty, scale_factor, node_factory: NodeFactory, render_mode=None, renderer=None):
         super().__init__()
         self.render_mode = render_mode
         self.scale_factor = scale_factor
@@ -28,7 +28,10 @@ class BaseEnv(gym.Env):
 
         self.map = cur_map
         if render_mode is not None:
-            self.renderer = EnvRenderer(self.map.cfg)
+            if renderer is None:
+                self.renderer = EnvRenderer(self.map.cfg)
+            else:
+                self.renderer = renderer
             self.renderer.register_callback(self._additional_render)
 
     def reset(self, seed=None, options=None):
@@ -36,6 +39,9 @@ class BaseEnv(gym.Env):
         return self._get_observation(), self._get_info()
 
     def _reset(self):
+        """
+        Place for reseting of inner parts of the environment.
+        """
         pass
 
     def render(self):
@@ -54,12 +60,6 @@ class BaseEnv(gym.Env):
         state = self.map.sim.export()
         tn.state = state
         return tn
-
-    def _on_start_g_change(self):
-        """
-        Callback that is done everytime a goal or start is changed
-        """
-        pass
 
     def _additional_render(self, screen, font, **kwargs):
         pass
@@ -84,10 +84,8 @@ class ImportableEnv(BaseEnv):
         Imports the start node into the environment.
         """
         assert not self.reset_called, "Environment should either be reset or import start and goal, not both"
-
         self.import_called = True
 
-        self._on_start_g_change()
         self.start = start
         self.map.sim.import_from(start.state)
         return self._get_observation(), self._get_info()
@@ -96,7 +94,7 @@ class ImportableEnv(BaseEnv):
         """
         Imports the goal node into the environment.
         """
-        self._on_start_g_change()
+        print("Importing goal")
         self.goal = goal
 
     def reset(self, seed=None, options=None):

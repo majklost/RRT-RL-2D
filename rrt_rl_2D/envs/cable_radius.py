@@ -2,10 +2,9 @@ import gymnasium as gym
 import pygame
 import numpy as np
 import pymunk
-import warnings
 
 from .rrt_env import BaseEnv, ResetableEnv, ImportableEnv
-from ..nodes import *
+from ..nodes.node_factory import NodeFactory
 from ..samplers import *
 
 
@@ -18,10 +17,7 @@ class CableRadius(BaseEnv):
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
         self.last_start = None
-        self.custom_sampler = NDIMSampler((self.map.MARGIN, self.map.MARGIN), (
-            self.map.cfg['width'] - self.map.MARGIN, self.map.cfg["height"] - self.map.MARGIN))
-
-        self.reset()
+        self._reset()
 
     def step(self, action):
         action = self._process_action(action)
@@ -48,7 +44,7 @@ class CableRadius(BaseEnv):
     def _get_target_distance_vecs(self):
         vecs = self.goal.goal - self.map.agent.position
         if len(vecs.shape) == 1:  # Hack to be compatible with rectangle
-            distances = distances.reshape(1, -1)
+            vecs = vecs.reshape(1, -1)
         return vecs
 
     def _get_observation(self):
@@ -90,9 +86,6 @@ class CableRadius(BaseEnv):
         self.my_filter = pymunk.ShapeFilter(
             mask=pymunk.ShapeFilter.ALL_MASKS() ^ 0b1)
 
-    def _on_start_g_change(self):
-        self.last_target_potential = 0
-
     def _render_goal(self, screen):
         pygame.draw.circle(screen, (0, 0, 255), self.goal.goal, 10)
         pygame.draw.circle(screen, (0, 0, 255), self.goal.goal,
@@ -124,8 +117,13 @@ class CableRadiusR(ResetableEnv, CableRadius):
     Standard Resetable from CableRadius, custom reset_goal
     """
 
+    def __init__(self, cur_map, scale_factor, node_factory=NodeFactory(), render_mode=None):
+        super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
+
+        self.custom_sampler = NDIMSampler((self.map.MARGIN, self.map.MARGIN), (
+            self.map.cfg['width'] - self.map.MARGIN, self.map.cfg["height"] - self.map.MARGIN))
+
     def reset_goal(self):
-        self._on_start_g_change()
         pos = self.custom_sampler.sample()
         if self.goal is None:
             self.node_factory.wanted_position = pos
