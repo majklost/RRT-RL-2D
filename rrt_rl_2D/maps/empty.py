@@ -36,7 +36,7 @@ class Empty:
 
     def _calc_spacing_constants(self):
         self.EMPTY = 350
-        self.START = (self.EMPTY - 10,
+        self.START = (self.EMPTY - 100,
                       self.cfg["height"] // 2 - self.cfg['cable_length'] // 2)
         self.END = (self.cfg["height"] - self.EMPTY //
                     2, self.cfg['height'] // 2)
@@ -57,7 +57,7 @@ class Empty:
 
     def _add_agent(self):
         self.agent = Cable(
-            self.START, self.cfg["cable_length"], self.cfg["seg_num"], thickness=5, angle=np.pi)
+            self.START, self.cfg["cable_length"], self.cfg["seg_num"], thickness=5, angle=np.pi / 2)
         self.agent.color = (0, 0, 255)
         self.agent.set_collision_type(1)
         self.movable_objects.append(self.agent)
