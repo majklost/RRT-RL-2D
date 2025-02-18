@@ -13,6 +13,7 @@ class StandardConfig(TypedDict):
     seed_plan: int | None
     check_dimensions: Tuple[int, int] | int
     max_steps: int
+    checkpoint_period: int # Period for saving checkpoints
 
 
 # Standard configuration for the environment
@@ -28,5 +29,5 @@ STANDARD_CONFIG: StandardConfig = {
     'seed_plan': None,
     'check_dimensions': (10, 10),
     'max_steps': 1000,
-
+    'checkpoint_period': 200
 }

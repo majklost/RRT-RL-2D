@@ -4,12 +4,12 @@ import numpy as np
 import pymunk
 import warnings
 
-from .rrt_env import BaseEnv, ResetableEnv, RRTEnv
+from .rrt_env import BaseEnv, ResetableEnv, ImportableEnv
 from ..nodes import *
 from ..samplers import *
 
 
-class CableRadius(RRTEnv, ResetableEnv):
+class CableRadius(BaseEnv):
     def __init__(self, cur_map, scale_factor, node_factory=NodeFactory(), render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
 
@@ -22,18 +22,6 @@ class CableRadius(RRTEnv, ResetableEnv):
             self.map.cfg['width'] - self.map.MARGIN, self.map.cfg["height"] - self.map.MARGIN))
 
         self.reset()
-
-    def reset_goal(self):
-        self._on_start_g_change()
-        pos = self.custom_sampler.sample()
-        if self.goal is None:
-            self.node_factory.wanted_position = pos
-            self.goal = self.node_factory.create_goal()
-        self.goal.goal = pos
-
-    def reset(self, seed=None, options=None):
-        self.last_target_potential = 0
-        return super().reset(seed=seed, options=options)
 
     def step(self, action):
         action = self._process_action(action)
@@ -71,9 +59,14 @@ class CableRadius(RRTEnv, ResetableEnv):
         return -np.sum(np.linalg.norm(distances, axis=1), where=np.linalg.norm(distances, axis=1) > self.goal.threshold)
 
     def _get_reward(self):
+        if self.map.agent.outer_collision_idxs:
+            self.fail = True
+            return 0, True
+
         distances = self._get_target_distance_vecs()
 
         if np.all(np.linalg.norm(distances, axis=1) < self.goal.threshold):
+            self.reached = True
             return 1000, True
 
         potential = self._calc_potential(distances)
@@ -85,7 +78,7 @@ class CableRadius(RRTEnv, ResetableEnv):
         return reward, False
 
     def _get_info(self):
-        return {'goal': self.goal}
+        return {'goal': self.goal, 'fail': self.fail, 'reached': self.reached}
 
     def _process_action(self, action):
         return action
@@ -111,3 +104,30 @@ class CableRadius(RRTEnv, ResetableEnv):
 
     def _additional_render(self, screen, font, **kwargs):
         self._render_goal(screen)
+
+    def _reset(self):
+        self.last_target_potential = 0
+        self.fail = False
+        self.reached = False
+
+
+class CableRadiusI(ImportableEnv, CableRadius):
+    """
+    Standard Importable from CableRadius
+    """
+
+    pass
+
+
+class CableRadiusR(ResetableEnv, CableRadius):
+    """
+    Standard Resetable from CableRadius, custom reset_goal
+    """
+
+    def reset_goal(self):
+        self._on_start_g_change()
+        pos = self.custom_sampler.sample()
+        if self.goal is None:
+            self.node_factory.wanted_position = pos
+            self.goal = self.node_factory.create_goal()
+        self.goal.goal = pos
