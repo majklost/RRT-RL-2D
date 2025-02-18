@@ -3,7 +3,7 @@ from stable_baselines3.common.env_util import make_vec_env
 
 
 from rrt_rl_2D.maps import *
-from rrt_rl_2D.envs.cable_radius import CableRadius
+from rrt_rl_2D.envs.cable_radius import CableRadiusR, CableRadiusI
 from rrt_rl_2D.controllers.env_controller import CableEnvController, RectEnvController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
@@ -20,7 +20,7 @@ map = MyMap(s)
 
 
 def maker():
-    return CableRadius(map, 1000, render_mode='human')
+    return CableRadiusR(map, 1000, render_mode='human')
 
 
 env = make_vec_env(maker, 1)

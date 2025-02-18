@@ -2,11 +2,12 @@ from typing import List
 
 from ..nodes.tree_node import TreeNode
 from ..nodes.goal_node import GoalNode
-from ..envs.rrt_env import RRTEnv
+from ..envs.rrt_env import ImportableEnv
+from stable_baselines3.common.env_util import VecEnv
 
 
 class BasePlanner:
-    def __init__(self, env: RRTEnv):
+    def __init__(self, env: VecEnv):
         """
         Initializes the planner with the environment.
         :param env: The environment in which the planner is working. MUST BE PREPARED WITH NORMS ALREADY

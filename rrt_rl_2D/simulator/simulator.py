@@ -26,6 +26,7 @@ class Simulator:
         self._process_config(config)
         self._space.collision_slop = .01
         self._add_objects_to_space()
+        self._collision_handling()
 
     def _process_config(self, config):
         self._fps = config['fps']
@@ -128,6 +129,65 @@ class Simulator:
 
     def shape_query(self, shape):
         return self._space.shape_query(shape)
+
+    def _begin_collision(self, arbiter: pymunk.Arbiter, space, data):
+        b1 = arbiter.shapes[0]
+        b2 = arbiter.shapes[1]
+        # print("Collision detected")
+
+        cid1, movable1 = self._get_id(b1.body)
+        cid2, movable2 = self._get_id(b2.body)
+        # same_object = movable1 == movable2 and cid1[0] == cid2[0]
+        o1 = self._get_object(cid1, movable1)
+        o2 = self._get_object(cid2, movable2)
+
+        if o1.track_colisions:
+            data1 = CollisionData(arbiter.normal, b2, o2, cid1, cid2)
+            o1.collision_start(data1)
+        if o2.track_colisions:
+            data2 = CollisionData(-arbiter.normal, b1, o1, cid2, cid1)
+            o2.collision_start(data2)
+
+        # o1.color = (255,0,0,0)
+        # o2.color = (0,255,0,0)
+
+        return True
+
+    @staticmethod
+    def _get_id(body):
+        if hasattr(body, 'moveId'):
+            cid = body.moveId
+            return cid, True
+
+        elif hasattr(body, 'fixedId'):
+            cid = body.fixedId
+            return cid, False
+
+        raise ValueError("Object with no ID")
+
+    def _get_object(self, cid, movable):
+        if movable:
+            return self.movable_objects[cid[0]]
+        else:
+            return self.fixed_objects[cid[0]]
+
+    def _end_collision(self, arbiter, space, data):
+        b1 = arbiter.shapes[0]
+        b2 = arbiter.shapes[1]
+        # print("Collision ended")
+
+        cid1, movable1 = self._get_id(b1.body)
+        cid2, movable2 = self._get_id(b2.body)
+        # same_object = movable1 == movable2 and cid1[0] == cid2[0]
+
+        o1 = self._get_object(cid1, movable1)
+        o2 = self._get_object(cid2, movable2)
+        if o1.track_colisions:
+            data1 = CollisionData(arbiter.normal, b2, o2, cid1, cid2)
+            o1.collision_end(data1)
+        if o2.track_colisions:
+            data2 = CollisionData(-arbiter.normal, b1, o1, cid2, cid1)
+            o2.collision_end(data2)
 
 
 @dataclass

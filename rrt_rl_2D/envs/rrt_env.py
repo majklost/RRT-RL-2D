@@ -32,11 +32,11 @@ class BaseEnv(gym.Env):
             self.renderer.register_callback(self._additional_render)
 
     def reset(self, seed=None, options=None):
-        self.reset_called = True
-        if self.import_called:
-            warnings.warn(
-                "Environment should either be reset or import start and goal, not both")
+        self._reset()
         return self._get_observation(), self._get_info()
+
+    def _reset(self):
+        pass
 
     def render(self):
         if self.renderer is not None:
@@ -77,15 +77,14 @@ class BaseEnv(gym.Env):
         raise NotImplementedError("Get info method must be implemented")
 
 
-class RRTEnv(BaseEnv):
+class ImportableEnv(BaseEnv):
 
     def import_start(self, start: 'TreeNode'):
         """
         Imports the start node into the environment.
         """
-        if self.reset_called:
-            warnings.warn(
-                "Environment should either be reset or import start and goal, not both")
+        assert not self.reset_called, "Environment should either be reset or import start and goal, not both"
+
         self.import_called = True
 
         self._on_start_g_change()
@@ -100,6 +99,9 @@ class RRTEnv(BaseEnv):
         self._on_start_g_change()
         self.goal = goal
 
+    def reset(self, seed=None, options=None):
+        return super().reset(seed, options)
+
 
 class ResetableEnv(BaseEnv):
     """
@@ -110,6 +112,10 @@ class ResetableEnv(BaseEnv):
         """
         Resets the start node.
         """
+
+        assert not self.import_called, "Environment should either be reset or import start and goal, not both"
+
+        self.reset_called = True
         self._on_start_g_change()
         pos = self._reset_position()
         self.map.agent.position = pos
