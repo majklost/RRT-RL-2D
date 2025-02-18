@@ -12,6 +12,7 @@ class StandardConfig(TypedDict):
     seed_env: int | None
     seed_plan: int | None
     check_dimensions: Tuple[int, int] | int
+    max_steps: int
 
 
 # Standard configuration for the environment
@@ -25,5 +26,7 @@ STANDARD_CONFIG: StandardConfig = {
     'seg_num': 20,
     'seed_env': None,
     'seed_plan': None,
-    'check_dimensions': (10, 10)
+    'check_dimensions': (10, 10),
+    'max_steps': 1000,
+
 }

@@ -8,9 +8,11 @@ from rrt_rl_2D.controllers.env_controller import CableEnvController, RectEnvCont
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
 s = STANDARD_CONFIG.copy()
+s['seed_env'] = 27
+s['seed_plan'] = 20
 
 
-class MyMap(RectangleEmpty, NonConvex):
+class MyMap(ThickStones):
     pass
 
 
@@ -18,12 +20,13 @@ map = MyMap(s)
 
 
 def maker():
-    return CableRadius(map, 2000, render_mode='human')
+    return CableRadius(map, 1000, render_mode='human')
 
 
 env = make_vec_env(maker, 1)
 
-controller = RectEnvController()
+# controller = RectEnvController()
+controller = CableEnvController(segnum=s['seg_num'])
 
 
 obs = env.reset()
@@ -40,10 +43,10 @@ for i in range(10000):
     # if i % 200 == 0:
     #     env.env_method("import_start", state)
 
-    if i == 100:
-        states = env.env_method("export_state")
-        state = states[0]
-    elif i % 100 == 0:
-        env.env_method("import_start", state)
+    # if i == 100:
+    #     states = env.env_method("export_state")
+    #     state = states[0]
+    # elif i % 100 == 0:
+    #     env.env_method("import_start", state)
 
     env.render()

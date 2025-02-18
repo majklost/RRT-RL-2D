@@ -1,5 +1,6 @@
 import gymnasium as gym
 from typing import TYPE_CHECKING
+import warnings
 
 if TYPE_CHECKING:
     from ..nodes.tree_node import TreeNode
@@ -21,10 +22,21 @@ class BaseEnv(gym.Env):
         self.goal = None  # GoalNode
         self.start = None  # TreeNode
         self.node_factory = node_factory  # NodeFactory
+        # For warning
+        self.reset_called = False
+        self.import_called = False
 
         self.map = cur_map
         if render_mode is not None:
             self.renderer = EnvRenderer(self.map.cfg)
+            self.renderer.register_callback(self._additional_render)
+
+    def reset(self, seed=None, options=None):
+        self.reset_called = True
+        if self.import_called:
+            warnings.warn(
+                "Environment should either be reset or import start and goal, not both")
+        return self._get_observation(), self._get_info()
 
     def render(self):
         if self.renderer is not None:
@@ -49,16 +61,37 @@ class BaseEnv(gym.Env):
         """
         pass
 
+    def _additional_render(self, screen, font, **kwargs):
+        pass
+
+    def _get_observation(self):
+        """
+        Returns the observation of the environment.
+        """
+        raise NotImplementedError("Get observation method must be implemented")
+
+    def _get_info(self):
+        """
+        Returns the info of the environment.
+        """
+        raise NotImplementedError("Get info method must be implemented")
+
 
 class RRTEnv(BaseEnv):
 
-    def import_start(self, start: 'TreeNode') -> None:
+    def import_start(self, start: 'TreeNode'):
         """
         Imports the start node into the environment.
         """
+        if self.reset_called:
+            warnings.warn(
+                "Environment should either be reset or import start and goal, not both")
+        self.import_called = True
+
         self._on_start_g_change()
         self.start = start
         self.map.sim.import_from(start.state)
+        return self._get_observation(), self._get_info()
 
     def import_goal(self, goal: 'GoalNode') -> None:
         """
@@ -69,6 +102,10 @@ class RRTEnv(BaseEnv):
 
 
 class ResetableEnv(BaseEnv):
+    """
+    Enabling reset of start and end in environment
+    """
+
     def reset_start(self):
         """
         Resets the start node.
@@ -99,3 +136,8 @@ class ResetableEnv(BaseEnv):
             else:
                 valid = self.map.check_validity(pos)
         return pos
+
+    def reset(self, seed=None, options=None):
+        self.reset_start()
+        self.reset_goal()
+        return super().reset(seed, options)
