@@ -29,8 +29,11 @@ class EnvRenderer(BaseRenderer):
         font_path = Path(__file__).parent / 'Arial.ttf'
         return pygame.freetype.Font(font_path, 20)
 
+    def register_callback(self, clb):
+        self.clb = clb
+
     def _additional_render(self, screen):
-        pass
+        self.clb(screen, self.font)
 
     def render(self, simulator):
         self.screen.fill((255, 255, 255))

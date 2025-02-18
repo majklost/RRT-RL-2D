@@ -1,10 +1,12 @@
 import gymnasium as gym
+import pygame
 import numpy as np
 import pymunk
 import warnings
 
 from .rrt_env import BaseEnv, ResetableEnv, RRTEnv
 from ..nodes import *
+from ..samplers import *
 
 
 class CableRadius(RRTEnv, ResetableEnv):
@@ -16,14 +18,22 @@ class CableRadius(RRTEnv, ResetableEnv):
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
         self.last_start = None
+        self.custom_sampler = NDIMSampler((self.map.MARGIN, self.map.MARGIN), (
+            self.map.cfg['width'] - self.map.MARGIN, self.map.cfg["height"] - self.map.MARGIN))
+
         self.reset()
 
+    def reset_goal(self):
+        self._on_start_g_change()
+        pos = self.custom_sampler.sample()
+        if self.goal is None:
+            self.node_factory.wanted_position = pos
+            self.goal = self.node_factory.create_goal()
+        self.goal.goal = pos
+
     def reset(self, seed=None, options=None):
-        super().reset(seed=seed, options=options)
         self.last_target_potential = 0
-        self.reset_start()
-        self.reset_goal()
-        return self._get_observation(), self._get_info()
+        return super().reset(seed=seed, options=options)
 
     def step(self, action):
         action = self._process_action(action)
@@ -33,6 +43,7 @@ class CableRadius(RRTEnv, ResetableEnv):
                 force /= np.linalg.norm(force)
             force *= self.scale_factor
             self.map.agent.bodies[i].apply_force(force)
+
         self.map.sim.step()
         obs = self._get_observation()
         reward, done = self._get_reward()
@@ -47,7 +58,10 @@ class CableRadius(RRTEnv, ResetableEnv):
         return gym.spaces.Box(low=-1, high=1, shape=(self.agent_len * 2,), dtype=np.float64)
 
     def _get_target_distance_vecs(self):
-        return self.goal.goal - self.map.agent.position
+        vecs = self.goal.goal - self.map.agent.position
+        if len(vecs.shape) == 1:  # Hack to be compatible with rectangle
+            distances = distances.reshape(1, -1)
+        return vecs
 
     def _get_observation(self):
         target_distance_vecs = self._get_target_distance_vecs()
@@ -58,8 +72,6 @@ class CableRadius(RRTEnv, ResetableEnv):
 
     def _get_reward(self):
         distances = self._get_target_distance_vecs()
-        if len(distances.shape) == 1:
-            distances = distances.reshape(1, -1)
 
         if np.all(np.linalg.norm(distances, axis=1) < self.goal.threshold):
             return 1000, True
@@ -87,3 +99,15 @@ class CableRadius(RRTEnv, ResetableEnv):
 
     def _on_start_g_change(self):
         self.last_target_potential = 0
+
+    def _render_goal(self, screen):
+        pygame.draw.circle(screen, (0, 0, 255), self.goal.goal, 10)
+        pygame.draw.circle(screen, (0, 0, 255), self.goal.goal,
+                           self.goal.threshold, 1)
+        target_vecs = self._get_target_distance_vecs()
+        for i in range(len(target_vecs)):
+            pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
+                             self.map.agent.position[i] + target_vecs[i], 1)
+
+    def _additional_render(self, screen, font, **kwargs):
+        self._render_goal(screen)

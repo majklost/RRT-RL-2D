@@ -5,7 +5,7 @@ from .tree_node import TreeNode
 class NodeFactory:
     def __init__(self):
         self.wanted_position = None
-        self.wanted_threshold = 30
+        self.wanted_threshold = 150
 
     def create_goal(self) -> GoalNode:
         assert self.wanted_position is not None, "Before creating goal give position"

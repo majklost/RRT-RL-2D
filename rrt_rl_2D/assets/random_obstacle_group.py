@@ -29,8 +29,10 @@ class RandomObstacleGroup(MultiBody):
     def _create_obstacle_group(self):
         for i in range(self.VNum):
             for j in range(self.HNum):
+                seed = int(self.rng.integers(0, 1000))
+
                 r = RandomBlock(self.position + np.array(
-                    [i * self.VSep, j * self.HSep]), self.radius, self._btype, seed=self.rng.integers(0, 1000))
+                    [i * self.VSep, j * self.HSep]), self.radius, self._btype, seed=seed)
                 self.append(r)
 
     @property
