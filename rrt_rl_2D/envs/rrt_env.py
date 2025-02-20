@@ -1,10 +1,12 @@
 import gymnasium as gym
 from typing import TYPE_CHECKING
 import warnings
+import pygame
 
 if TYPE_CHECKING:
     from ..nodes.tree_node import TreeNode
     from ..nodes.goal_node import GoalNode
+
 
 from ..nodes.node_factory import NodeFactory
 from ..maps.empty import Empty
@@ -25,6 +27,9 @@ class BaseEnv(gym.Env):
         # For warning
         self.reset_called = False
         self.import_called = False
+        # For rendering
+        self.last_reward = 0
+        self.cur_return = 0
 
         self.map = cur_map
         if render_mode is not None:
@@ -62,7 +67,13 @@ class BaseEnv(gym.Env):
         return tn
 
     def _additional_render(self, screen, font, **kwargs):
-        pass
+        self._render_return_reward(screen, font)
+
+    def _render_return_reward(self, screen: pygame.Surface, font: pygame.freetype.Font):
+        font.render_to(screen, (50, 50),
+                       f"Reward: {self.last_reward}")
+        font.render_to(screen, (50, 100),
+                       f"ReturN: {self.cur_return}", (0, 255, 0))
 
     def _get_observation(self):
         """

@@ -44,6 +44,7 @@ for i in range(10000):
 
     obs, reward, done, info = env.step(action)
     if done[0]:
+        print(info)
         env.env_method("import_start", state)
         obs = env.reset()
 
