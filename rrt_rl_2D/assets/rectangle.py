@@ -12,7 +12,11 @@ class Rectangle(SingleBody):
                  h: float,
                  body_type,
                  sensor=False):
-        super().__init__(body_type=body_type)
+        if sensor:
+            track_col = False
+        else:
+            track_col = True
+        super().__init__(body_type=body_type, track_collisions=track_col)
         shape = pymunk.Poly.create_box(self._body, (w, h))
         shape.sensor = sensor
         self.shapes = [shape]

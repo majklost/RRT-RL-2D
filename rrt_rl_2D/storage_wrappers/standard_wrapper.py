@@ -60,7 +60,7 @@ class StandardWrapper(BaseWrapper):
                 break
             cur = cur.parent
 
-        return BasePath(path, {})
+        return BasePath(list(reversed(path)), {})
 
     def get_nearest(self, point: 'GoalNode') -> 'VelTreeNode':
         return self.storage.nearest_neighbour(point)

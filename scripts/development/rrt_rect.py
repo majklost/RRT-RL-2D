@@ -9,17 +9,18 @@ from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
+from rrt_rl_2D.export.vel_path_replayer import VelPathReplayer
 
 cfg = STANDARD_CONFIG.copy()
-cfg['checkpoint_period'] = 20
+cfg['checkpoint_period'] = 40
 cfg['seed_env'] = 27
-cfg['seed_plan'] = 20
-cfg['threshold'] = 20
+cfg['seed_plan'] = 25
+cfg['threshold'] = 40
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
 
 
-class MyMap(RectangleEmpty, ThickStones):
+class MyMap(RectangleEmpty, StandardStones):
     pass
 
 
@@ -46,19 +47,17 @@ sampler = NDIMSampler((0, 0), (cfg["width"], cfg["height"]))
 
 
 dummy_renderer = NullRenderer()
-
-
-renderer = EnvRenderer(cfg)
+cur_map = MyMap(cfg)
 
 
 def maker():
-    return RectEnvI(MyMap(cfg), 1000, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
+    return RectEnvI(cur_map, 1000, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
 
 
 env = make_vec_env(maker, 1, vec_env_cls=Dumm)
 overall_goal = GoalNode(
-    (cfg['width'] - 200, cfg['height'] // 2), cfg['threshold'])
-s_wrapper = storage_wrappers.StandardWrapper(
+    (cfg['width'] - 200, cfg['height'] // 2), threshold=250)
+s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
     storage, distance_fnc, overall_goal, cfg)
 
 planner = VecEnvPlanner(env, LinearModel(), cfg)
@@ -75,9 +74,8 @@ points = []
 def custom_clb(screen, font):
     for p in points:
         pygame.draw.circle(screen, (0, 255, 0), p, 5)
+    s_wrapper.render_clb(screen, font)
 
-
-renderer.register_callback(custom_clb)
 
 for i in range(15000):
     if not s_wrapper.want_next_iter:
@@ -99,13 +97,14 @@ for i in range(15000):
     s_wrapper.save_to_storage(response)
     if i % 100 == 0:
         print("Iteration: ", i)
-env.env_method("set_renderer", renderer)
-env.render()
-
-input()
-
-
-path = s_wrapper.get_path()
-test_env = maker()
+renderer = EnvRenderer(cfg)
+renderer.register_callback(custom_clb)
+# env.env_method("set_renderer", renderer)
+# env.render()
 
 env.close()
+
+path = s_wrapper.get_path()
+print("Path length: ", len(path.nodes))
+replayer = VelPathReplayer(cur_map, path)
+replayer.replay()

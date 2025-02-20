@@ -12,6 +12,7 @@ class DebugRenderer(BaseRenderer):
     def __init__(self, cfg=STANDARD_CONFIG, render_constraints=False, realtime=True):
         self._render_constraints = render_constraints
         self._realtime = realtime
+        self._controller = None
         self._fps = cfg['fps']
         w = cfg['width']
         h = cfg['height']
@@ -19,15 +20,21 @@ class DebugRenderer(BaseRenderer):
         self.cur_scene = pygame.surface.Surface((w, h))
         self._options = DrawOptions(self.cur_scene)
         self._clock = pygame.time.Clock()
+        self._font = self._create_font()
         self._running = True
+        self.clbks = []
         if not render_constraints:
             self._options.flags = DrawOptions.DRAW_SHAPES
 
     def attach_controller(self, controller: DirectController):
         self._controller = controller
 
+    def attach_draw_clb(self, clb):
+        self.clbks.append(clb)
+
     def _additional_drawings(self):
-        pass
+        for clb in self.clbks:
+            clb(self.cur_scene, self._font)
 
     def render(self, simulator: Simulator):
         self.cur_scene.fill((255, 255, 255))

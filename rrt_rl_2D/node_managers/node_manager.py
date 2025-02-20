@@ -21,6 +21,9 @@ class NodeManager:
     def after_step_clb(self, env: 'BaseEnv'):
         pass
 
+    def after_reset_clb(self, env: 'BaseEnv'):
+        pass
+
     def export(self, env: 'BaseEnv') -> TreeNode:
         tn = TreeNode()
         state = env.map.sim.export()
