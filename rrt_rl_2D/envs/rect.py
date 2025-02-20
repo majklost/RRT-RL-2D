@@ -14,11 +14,13 @@ class RectEnv(BaseEnv):
     Env with rectangle, 2 degrees of freedom
     """
 
-    def __init__(self, cur_map, scale_factor, node_factory=NodeManager(), render_mode=None):
-        super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
+        super().__init__(cur_map, scale_factor, node_factory,
+                         render_mode=render_mode, renderer=renderer)
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
 
+        self._last_action = None
         self._reset()
 
     def step(self, action):
@@ -26,7 +28,7 @@ class RectEnv(BaseEnv):
             action /= np.linalg.norm(action)
         action *= self.scale_factor
         self.map.agent.bodies[0].apply_force(action)
-
+        self._last_action = action
         return super().step(action)
 
     def _create_step_return(self):
@@ -79,6 +81,7 @@ class RectEnv(BaseEnv):
     def _additional_render(self, screen, font, **kwargs):
         super()._additional_render(screen, font, **kwargs)
         self._render_goal(screen)
+        self._render_forces(screen)
 
     def _render_goal(self, screen):
         pygame.draw.circle(screen, (0, 0, 255), self.goal.goal, 10)
@@ -87,6 +90,10 @@ class RectEnv(BaseEnv):
         target_vec = self._get_target_distance_vecs()
         pygame.draw.line(screen, (255, 0, 0), self.map.agent.position,
                          self.map.agent.position + target_vec, 1)
+
+    def _render_forces(self, screen):
+        pygame.draw.line(screen, (0, 255, 0), self.map.agent.position,
+                         self.map.agent.position + self._last_action, 2)
 
     def _reset(self):
         self.last_target_potential = 0

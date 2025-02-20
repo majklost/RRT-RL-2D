@@ -23,6 +23,7 @@ class EnvRenderer(BaseRenderer):
         self.options = DrawOptions(self.screen)
         self.options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
         self.font = self._create_font()
+        self.clbs = []
 
     @staticmethod
     def _create_font():
@@ -31,12 +32,14 @@ class EnvRenderer(BaseRenderer):
         return pygame.freetype.Font(font_path, 20)
 
     def register_callback(self, clb):
-        self.clb = clb
+        self.clbs.append(clb)
 
     def _additional_render(self, screen):
-        self.clb(screen, self.font)
+        for clb in self.clbs:
+            clb(screen, self.font)
 
     def render(self, simulator):
+
         self.screen.fill((255, 255, 255))
         simulator.draw_on(self.options)
         self._additional_render(self.screen)
@@ -44,5 +47,5 @@ class EnvRenderer(BaseRenderer):
         self.clock.tick(self.fps)
 
     def close(self):
-        pygame.displays.quit()
+        pygame.display.quit()
         pygame.quit()

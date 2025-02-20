@@ -42,6 +42,9 @@ class VecEnvPlanner(BasePlanner):
                     exports.append(self.env.env_method("export_state")[0])
                     data['reached'] = True
                     break
-            elif i + 10 % period == 0:
+            elif i % period == 0 and i != 0:
                 exports.append(self.env.env_method("export_state")[0])
+            self.env.render()
+            if i == max_steps - 1:
+                data['timeout'] = True
         return PlannerResponse(exports, data)
