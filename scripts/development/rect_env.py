@@ -12,11 +12,9 @@ from rrt_rl_2D.node_managers import VelNodeManager
 s = STANDARD_CONFIG.copy()
 s['seed_env'] = 27
 s['seed_plan'] = 20
-s['seg_num'] = 1
-s['cable_length'] = 40
 
 
-class MyMap(RectangleEmpty, NonConvex):
+class MyMap(RectangleEmpty, Empty):
     pass
 
 
@@ -29,7 +27,8 @@ def maker():
     return RectEnvI(map, 1000, nm, render_mode='human')
 
 
-goal = GoalNode((s['width'] - 200, s['height'] // 2), 100)
+goal = GoalNode(
+    (s['width'] - 200, s['height'] // 2), threshold=250)
 env = make_vec_env(maker, 1)
 
 controller = RectEnvController()
@@ -52,5 +51,6 @@ for i in range(10000):
         print(info)
         env.env_method("import_start", state)
         obs = env.reset()
+
 
     env.render()

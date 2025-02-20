@@ -25,11 +25,7 @@ class EnvRenderer(BaseRenderer):
         self.font = self._create_font()
         self.clbs = []
 
-    @staticmethod
-    def _create_font():
-        pygame.font.init()
-        font_path = Path(__file__).parent / 'Arial.ttf'
-        return pygame.freetype.Font(font_path, 20)
+    
 
     def register_callback(self, clb):
         self.clbs.append(clb)

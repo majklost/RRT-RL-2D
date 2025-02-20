@@ -45,6 +45,7 @@ class BaseEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         self._reset()
+        
         return self._get_observation(), self._get_info()
 
     def _reset(self):
@@ -56,6 +57,7 @@ class BaseEnv(gym.Env):
     def step(self, action):
         self.map.sim.step()
         self.node_manager.after_step_clb(self)
+
         return self._create_step_return()
 
     def _create_step_return(self):
@@ -109,6 +111,7 @@ class ImportableEnv(BaseEnv):
 
         self.start = start
         self.map.sim.import_from(start.state)
+        self.node_manager.after_reset_clb(self)
         return self._get_observation(), self._get_info()
 
     def import_goal(self, goal: 'GoalNode') -> None:

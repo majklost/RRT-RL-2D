@@ -38,7 +38,7 @@ class Empty:
         self.EMPTY = 350
         self.START = (self.EMPTY - 100,
                       self.cfg["height"] // 2 - self.cfg['cable_length'] // 2)
-        self.END = (self.cfg["height"] - self.EMPTY //
+        self.END = (self.cfg["width"] - self.EMPTY //
                     2, self.cfg['height'] // 2)
         self.MARGIN = 50  # Margin around boundings where sampler will not sample
 

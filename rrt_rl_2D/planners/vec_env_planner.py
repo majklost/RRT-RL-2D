@@ -22,6 +22,15 @@ class VecEnvPlanner(BasePlanner):
         self.cfg = cfg
         assert env.num_envs == 1, "Planner only supports single environment"
 
+    def _link_nodes(self, exports, start):
+        if len(exports) == 0:
+            return
+        exports[0].parent = start
+        for i in range(len(exports) - 1):
+            exports[i + 1].parent = exports[i]
+        # for export in exports:
+        #     export.parent = start
+
     def check_path(self, start, goal) -> PlannerResponse:
         self.env.env_method("import_goal", goal)
         self.env.env_method("import_start", start)
@@ -47,4 +56,6 @@ class VecEnvPlanner(BasePlanner):
             self.env.render()
             if i == max_steps - 1:
                 data['timeout'] = True
+
+        self._link_nodes(exports, start)
         return PlannerResponse(exports, data)
