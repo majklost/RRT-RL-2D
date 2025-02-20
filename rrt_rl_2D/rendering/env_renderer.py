@@ -1,4 +1,5 @@
 import pygame
+import pygame.freetype
 import pymunk
 from pathlib import Path
 from pymunk.pygame_util import DrawOptions
