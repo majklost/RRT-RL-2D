@@ -12,3 +12,5 @@ class BaseRenderer(ABC):
         Renders the current state of the environment
         """
         raise NotImplementedError("Render method must be implemented")
+
+

@@ -52,6 +52,9 @@ class Simulator:
             "collision_persistence": self._space.collision_persistence,
             "bodies": [b.copy() for b in self._space.bodies]
         }
+        for b in self.movable_objects:
+            if b.collision_data:
+                raise ValueError("Cannot export object with collision data")
         return PMExport(space=export_space, steps=self._steps)
 
     def import_from(self, export: 'PMExport'):
@@ -91,7 +94,7 @@ class Simulator:
         def begin_fnc(a, s, d): return self._begin_collision(a, s, d)
         def sep_fnc(a, s, d): return self._end_collision(a, s, d)
 
-        handler.begin = begin_fnc
+        handler.pre_solve = begin_fnc
         handler.separate = sep_fnc
 
     def _collect_objects(self):

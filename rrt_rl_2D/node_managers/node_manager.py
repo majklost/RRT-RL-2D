@@ -4,12 +4,13 @@ from ..nodes.goal_node import GoalNode
 from ..nodes.tree_node import TreeNode
 if TYPE_CHECKING:
     from ..envs.rrt_env import BaseEnv
+    from ..simulator.standard_config import StandardConfig
 
 
 class NodeManager:
-    def __init__(self):
+    def __init__(self, cfg: 'StandardConfig'):
         self.wanted_position = None
-        self.wanted_threshold = 150
+        self.wanted_threshold = cfg['threshold']
 
     def create_goal(self) -> GoalNode:
         assert self.wanted_position is not None, "Before creating goal give position"

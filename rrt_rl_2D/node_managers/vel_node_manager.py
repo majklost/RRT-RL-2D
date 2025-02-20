@@ -3,8 +3,8 @@ from ..nodes import *
 
 
 class VelNodeManager(NodeManager):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, cfg):
+        super().__init__(cfg)
         self.velocity_buffer = []
 
     def after_step_clb(self, env):

@@ -20,6 +20,7 @@ class BaseEnv(gym.Env):
     def __init__(self, cur_map: Empty, scale_factor, node_manager: NodeManager, render_mode=None, renderer=None):
         super().__init__()
         self.render_mode = render_mode
+        self.renderer = renderer
         self.scale_factor = scale_factor
         self.goal = None  # GoalNode
         self.start = None  # TreeNode
@@ -34,10 +35,13 @@ class BaseEnv(gym.Env):
         self.map = cur_map
         if render_mode is not None:
             if renderer is None:
-                self.renderer = EnvRenderer(self.map.cfg)
+                self.set_renderer(EnvRenderer(self.map.cfg))
             else:
-                self.renderer = renderer
-            self.renderer.register_callback(self._additional_render)
+                self.set_renderer(renderer)
+
+    def set_renderer(self, renderer: EnvRenderer):
+        self.renderer = renderer
+        self.renderer.register_callback(self._additional_render)
 
     def reset(self, seed=None, options=None):
         self._reset()
@@ -111,7 +115,6 @@ class ImportableEnv(BaseEnv):
         """
         Imports the goal node into the environment.
         """
-        print("Importing goal")
         self.goal = goal
 
     def reset(self, seed=None, options=None):

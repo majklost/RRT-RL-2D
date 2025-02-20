@@ -10,7 +10,7 @@ class StandardWrapper(BaseWrapper):
     NDim start 2D goal storage
     """
 
-    def __init__(self, storage: BaseStorage, distance_fn, overall_goal: GoalNode, cfg):
+    def __init__(self, storage: BaseStorage, distance_fn, overall_goal: 'GoalNode', cfg):
         super().__init__(cfg=cfg)
         self.storage = storage  # type: BaseStorage
         # must know to be able to check whether it is near the goal
@@ -24,7 +24,7 @@ class StandardWrapper(BaseWrapper):
         """
         Saves the response to the storage.
         """
-        for node in response.nodes:
+        for node in response.path:
             self.storage.insert(node)
             if self._check_reached_goal(node):
                 break
@@ -46,7 +46,7 @@ class StandardWrapper(BaseWrapper):
             self._end_node = node
         return False
 
-    def get_all_nodes(self) -> List[VelTreeNode]:
+    def get_all_nodes(self) -> List['VelTreeNode']:
         return self.storage.get_all_nodes()
 
     def get_path(self) -> BasePath:
@@ -62,5 +62,5 @@ class StandardWrapper(BaseWrapper):
 
         return BasePath(path, {})
 
-    def get_nearest(self, point: GoalNode) -> VelTreeNode:
+    def get_nearest(self, point: 'GoalNode') -> 'VelTreeNode':
         return self.storage.nearest_neighbour(point)
