@@ -4,7 +4,7 @@ from stable_baselines3.common.on_policy_algorithm import OnPolicyAlgorithm
 
 from .base_planner import BasePlanner, PlannerResponse
 from ..simulator.standard_config import StandardConfig
-from ..nodes.node_factory import NodeFactory
+from ..node_managers.node_manager import NodeManager
 from ..manual_models.base_model import BaseManualModel
 
 

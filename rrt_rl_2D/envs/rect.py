@@ -5,7 +5,7 @@ import pygame.freetype
 import pymunk
 
 from .rrt_env import BaseEnv, ResetableEnv, ImportableEnv
-from ..nodes.node_factory import NodeFactory
+from ..node_managers.node_manager import NodeManager
 from ..samplers import *
 
 
@@ -14,7 +14,7 @@ class RectEnv(BaseEnv):
     Env with rectangle, 2 degrees of freedom
     """
 
-    def __init__(self, cur_map, scale_factor, node_factory=NodeFactory(), render_mode=None):
+    def __init__(self, cur_map, scale_factor, node_factory=NodeManager(), render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
@@ -27,7 +27,9 @@ class RectEnv(BaseEnv):
         action *= self.scale_factor
         self.map.agent.bodies[0].apply_force(action)
 
-        self.map.sim.step()
+        return super().step(action)
+
+    def _create_step_return(self):
         obs = self._get_observation()
         reward, done = self._get_reward()
         self.cur_return += reward

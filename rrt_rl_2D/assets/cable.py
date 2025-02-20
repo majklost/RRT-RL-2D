@@ -68,6 +68,12 @@ class Cable(MultiBody):
         """Returns vector of velocities of all segments"""
         return np.array([b.velocity for b in self.bodies])
 
+    @velocity.setter
+    def velocity(self, vel):
+        assert len(vel) == len(self.bodies)
+        for i in range(len(self.bodies)):
+            self.bodies[i].velocity = vel[i]
+
     @position.setter
     def position(self, pos):
         assert len(pos) == len(self.bodies)

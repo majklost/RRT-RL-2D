@@ -5,7 +5,10 @@ from ..nodes.goal_node import GoalNode
 from ..nodes.tree_node import TreeNode
 
 
-class BaseWrapper(ABC):
+class BaseWrapper:
+    def __init__(self, cfg):
+        self.cfg = cfg
+
     @abstractmethod
     def save_to_storage(self, response: PlannerResponse):
         pass
@@ -15,7 +18,7 @@ class BaseWrapper(ABC):
         pass
 
     @abstractmethod
-    def get_path(self) -> 'Path':
+    def get_path(self) -> 'BasePath':
         pass
 
     @abstractmethod
@@ -23,7 +26,7 @@ class BaseWrapper(ABC):
         pass
 
 
-class Path:
+class BasePath:
     def __init__(self, nodes: List[TreeNode], data: dict):
         self.nodes = nodes
         self.data = data

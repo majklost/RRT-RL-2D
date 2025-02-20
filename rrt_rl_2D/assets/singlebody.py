@@ -128,7 +128,7 @@ class SingleBody:
         """
         :return: Force applied to the CoG of given body
         """
-        return self._manual_force
+        return np.array([self._body.force.x, self._body.force.y])
 
     def save_manual_forces(self):
         """
