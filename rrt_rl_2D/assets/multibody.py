@@ -1,3 +1,5 @@
+import numpy as np
+
 from typing import List, Tuple
 from .singlebody import SingleBody
 from ..simulator.collision_data import CollisionData
@@ -105,6 +107,9 @@ class MultiBody:
     def save_manual_forces(self):
         for b in self.bodies:
             b.save_manual_forces()
+
+    def get_manual_force(self):
+        return np.vstack([b.get_manual_force() for b in self.bodies])
 
     @property
     def position(self):

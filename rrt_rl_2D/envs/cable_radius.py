@@ -4,12 +4,12 @@ import numpy as np
 import pymunk
 
 from .rrt_env import BaseEnv, ResetableEnv, ImportableEnv
-from ..nodes.node_factory import NodeFactory
+from ..node_managers.node_manager import NodeManager
 from ..samplers import *
 
 
 class CableRadius(BaseEnv):
-    def __init__(self, cur_map, scale_factor, node_factory=NodeFactory(), render_mode=None):
+    def __init__(self, cur_map, scale_factor, node_factory=NodeManager(), render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
 
         self.agent_len = len(self.map.agent.bodies)
@@ -28,7 +28,9 @@ class CableRadius(BaseEnv):
             force *= self.scale_factor
             self.map.agent.bodies[i].apply_force(force)
 
-        self.map.sim.step()
+        return super().step(action)
+
+    def _create_step_return(self):
         obs = self._get_observation()
         reward, done = self._get_reward()
         info = self._get_info()
@@ -117,7 +119,7 @@ class CableRadiusR(ResetableEnv, CableRadius):
     Standard Resetable from CableRadius, custom reset_goal
     """
 
-    def __init__(self, cur_map, scale_factor, node_factory=NodeFactory(), render_mode=None):
+    def __init__(self, cur_map, scale_factor, node_factory=NodeManager(), render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
 
         self.custom_sampler = NDIMSampler((self.map.MARGIN, self.map.MARGIN), (
@@ -126,6 +128,6 @@ class CableRadiusR(ResetableEnv, CableRadius):
     def reset_goal(self):
         pos = self.custom_sampler.sample()
         if self.goal is None:
-            self.node_factory.wanted_position = pos
-            self.goal = self.node_factory.create_goal()
+            self.node_manager.wanted_position = pos
+            self.goal = self.node_manager.create_goal()
         self.goal.goal = pos

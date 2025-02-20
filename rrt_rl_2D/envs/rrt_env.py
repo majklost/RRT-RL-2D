@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ..nodes.goal_node import GoalNode
 
 
-from ..nodes.node_factory import NodeFactory
+from ..node_managers.node_manager import NodeManager
 from ..maps.empty import Empty
 from ..rendering.env_renderer import EnvRenderer
 from abc import abstractmethod
@@ -17,13 +17,13 @@ from abc import abstractmethod
 class BaseEnv(gym.Env):
     metadata = {'render.modes': ['human', None]}
 
-    def __init__(self, cur_map: Empty, scale_factor, node_factory: NodeFactory, render_mode=None, renderer=None):
+    def __init__(self, cur_map: Empty, scale_factor, node_manager: NodeManager, render_mode=None, renderer=None):
         super().__init__()
         self.render_mode = render_mode
         self.scale_factor = scale_factor
         self.goal = None  # GoalNode
         self.start = None  # TreeNode
-        self.node_factory = node_factory  # NodeFactory
+        self.node_manager = node_manager  # NodeFactory
         # For warning
         self.reset_called = False
         self.import_called = False
@@ -49,6 +49,15 @@ class BaseEnv(gym.Env):
         """
         pass
 
+    def step(self, action):
+        self.map.sim.step()
+        self.node_manager.after_step_clb(self)
+        return self._create_step_return()
+
+    def _create_step_return(self):
+        raise NotImplementedError(
+            "Create step return method must be implemented")
+
     def render(self):
         if self.renderer is not None:
             self.renderer.render(self.map.sim)
@@ -61,10 +70,7 @@ class BaseEnv(gym.Env):
         """
         Exports the state of the environment.
         """
-        tn = self.node_factory.create_tree_node()
-        state = self.map.sim.export()
-        tn.state = state
-        return tn
+        return self.node_manager.export(self)
 
     def _additional_render(self, screen, font, **kwargs):
         self._render_return_reward(screen, font)
@@ -137,8 +143,8 @@ class ResetableEnv(BaseEnv):
         self._on_start_g_change()
         pos = self._reset_position()
         if self.goal is None:
-            self.node_factory.wanted_position = pos
-            self.goal = self.node_factory.create_goal()
+            self.node_manager.wanted_position = pos
+            self.goal = self.node_manager.create_goal()
         self.goal.goal = pos
 
     def _reset_position(self):
