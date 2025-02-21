@@ -1,3 +1,4 @@
+import numpy as np
 import pygame
 from ..maps.empty import Empty
 from ..storage_wrappers.base_wrapper import BasePath
@@ -28,8 +29,10 @@ class VelPathReplayer:
             self.map.sim.import_from(node.state)
             self.map.sim.step()
 
-        self.map.agent.velocity = [0, 0]
+        self.map.agent.velocity = np.zeros_like(self.map.agent.velocity)
 
+
+class VelPathReplayerRect(VelPathReplayer):
     def draw(self, screen, font):
         for node in self.path.nodes:
             pygame.draw.circle(screen, (0, 255, 0), node.agent_pos, 5)
@@ -37,3 +40,10 @@ class VelPathReplayer:
             node = self.path.nodes[i]
             pygame.draw.line(
                 screen, (0, 255, 0), self.path.nodes[i - 1].agent_pos, node.agent_pos, 2)
+
+
+class VelPathReplayerCable(VelPathReplayer):
+    def draw(self, screen, font):
+        for node in self.path.nodes:
+            for p in node.agent_pos:
+                pygame.draw.circle(screen, (0, 255, 0), p, 5)
