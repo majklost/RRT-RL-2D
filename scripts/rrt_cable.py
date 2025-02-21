@@ -3,12 +3,12 @@ import pygame
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from rrt_rl_2D import *
-from rrt_rl_2D.envs.rect import RectEnvI
+from rrt_rl_2D.envs.cable_radius import CableRadiusI
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
-from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerRect
+from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
 
 cfg = STANDARD_CONFIG.copy()
 cfg['checkpoint_period'] = 60
@@ -18,9 +18,10 @@ cfg['seed_plan'] = 25
 cfg['threshold'] = 40
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
+node_manager.wanted_threshold = 250
 
 
-class MyMap(RectangleEmpty, NonConvex):
+class MyMap(StandardStones):
     pass
 
 
@@ -45,13 +46,12 @@ def distance_fnc(n1, n2):
 storage = storages.GNAT(distance_fnc)
 sampler = NDIMSampler((0, 0), (cfg["width"], cfg["height"]))
 
-
 dummy_renderer = NullRenderer()
 cur_map = MyMap(cfg)
 
 
 def maker():
-    return RectEnvI(cur_map, 1000, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
+    return CableRadiusI(cur_map, 300, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
 
 
 env = make_vec_env(maker, 1)
@@ -68,26 +68,28 @@ response = PlannerResponse(start_node, {})
 s_wrapper.save_to_storage(response)
 
 
-points = []
+chpoints = []
 
 
 def custom_clb(screen, font):
-    for p in points:
-        pygame.draw.circle(screen, (0, 255, 0), p, 5)
+    for chpoint in chpoints:
+        for p in chpoint:
+            pygame.draw.circle(screen, (0, 255, 0), p, 5)
     s_wrapper.render_clb(screen, font)
 
 
-for i in range(25000):
+for i in range(20000):
     if not s_wrapper.want_next_iter:
         print("Goal reached")
         break
+
     qrand_raw = sampler.sample()
     node_manager.wanted_position = qrand_raw
     qrand = node_manager.create_goal()
     nearest = s_wrapper.get_nearest(qrand)
     response = planner.check_path(nearest, qrand)
     for node in response.path:
-        points.append(node.agent_pos)
+        chpoints.append(node.agent_pos)
 
     if response.data.get('timeout', False):
         print("Timeout")
@@ -103,10 +105,9 @@ renderer.register_callback(custom_clb)
 env.env_method("set_renderer", renderer)
 env.render()
 input()
-
 env.close()
 
 path = s_wrapper.get_path()
 print("Path length: ", len(path.nodes))
-replayer = VelPathReplayerRect(cur_map, path)
+replayer = VelPathReplayerCable(cur_map, path)
 replayer.replay()

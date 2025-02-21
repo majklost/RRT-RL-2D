@@ -10,7 +10,7 @@ class RectEndWrapper(StandardWrapper):
         if len(pos.shape) == 1:
             pos = pos.reshape(1, -1)
         diff = pos[:, 0] - self.overall_goal.goal[0]
-        if np.abs(diff) < self.overall_goal.threshold:
+        if np.all(np.abs(diff) < self.overall_goal.threshold):
             self.want_next_iter = False
             self._end_node = node
             return True

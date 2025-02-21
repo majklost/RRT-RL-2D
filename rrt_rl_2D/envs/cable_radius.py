@@ -9,8 +9,9 @@ from ..samplers import *
 
 
 class CableRadius(BaseEnv):
-    def __init__(self, cur_map, scale_factor, node_factory=NodeManager(), render_mode=None):
-        super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
+        super().__init__(cur_map, scale_factor, node_factory,
+                         render_mode=render_mode, renderer=renderer)
 
         self.agent_len = len(self.map.agent.bodies)
         self._set_filter()
@@ -119,8 +120,9 @@ class CableRadiusR(ResetableEnv, CableRadius):
     Standard Resetable from CableRadius, custom reset_goal
     """
 
-    def __init__(self, cur_map, scale_factor, node_factory=NodeManager(), render_mode=None):
-        super().__init__(cur_map, scale_factor, node_factory, render_mode=render_mode)
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
+        super().__init__(cur_map, scale_factor, node_factory,
+                         render_mode=render_mode, renderer=renderer)
 
         self.custom_sampler = NDIMSampler((self.map.MARGIN, self.map.MARGIN), (
             self.map.cfg['width'] - self.map.MARGIN, self.map.cfg["height"] - self.map.MARGIN))
