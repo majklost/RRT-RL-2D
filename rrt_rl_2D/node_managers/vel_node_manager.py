@@ -12,7 +12,7 @@ class VelNodeManager(NodeManager):
         self.velocity_buffer.append(env.map.agent.velocity)
 
     def after_reset_clb(self, env):
-        pass
+        self.velocity_buffer = []
 
     def export(self, env):
         tn = VelTreeNode()

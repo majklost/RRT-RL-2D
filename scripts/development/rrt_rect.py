@@ -14,13 +14,14 @@ from rrt_rl_2D.export.vel_path_replayer import VelPathReplayer
 cfg = STANDARD_CONFIG.copy()
 cfg['checkpoint_period'] = 40
 cfg['seed_env'] = 27
-cfg['seed_plan'] = 25
+# cfg['seed_plan'] = 25
+cfg['seed_plan'] = 15
 cfg['threshold'] = 40
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
 
 
-class MyMap(RectangleEmpty, StandardStones):
+class MyMap(RectangleEmpty, Piped):
     pass
 
 
@@ -77,7 +78,7 @@ def custom_clb(screen, font):
     s_wrapper.render_clb(screen, font)
 
 
-for i in range(15000):
+for i in range(25000):
     if not s_wrapper.want_next_iter:
         print("Goal reached")
         break
@@ -91,16 +92,18 @@ for i in range(15000):
 
     if response.data.get('timeout', False):
         print("Timeout")
-    # if i == 500:
+    # if i == 5500:
     #     env.env_method("set_renderer", renderer)
 
     s_wrapper.save_to_storage(response)
     if i % 100 == 0:
         print("Iteration: ", i)
+
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
-# env.env_method("set_renderer", renderer)
-# env.render()
+env.env_method("set_renderer", renderer)
+env.render()
+input()
 
 env.close()
 

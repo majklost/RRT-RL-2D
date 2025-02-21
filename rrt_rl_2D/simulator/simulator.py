@@ -94,7 +94,7 @@ class Simulator:
         def begin_fnc(a, s, d): return self._begin_collision(a, s, d)
         def sep_fnc(a, s, d): return self._end_collision(a, s, d)
 
-        handler.pre_solve = begin_fnc
+        handler.post_solve = begin_fnc
         handler.separate = sep_fnc
 
     def _collect_objects(self):
