@@ -20,7 +20,7 @@ class VelPathReplayer:
         for i in range(0, len(self.path.nodes)):
             node = self.path.nodes[i]
             assert isinstance(node, VelTreeNode), "Node is not VelTreeNode"
-            print(f"node {i} buffer:{len(node.velocity_buffer)}")
+            # print(f"node {i} buffer:{len(node.velocity_buffer)}")
             for vel in node.velocity_buffer:
                 self.map.sim.step()
                 self.map.agent.velocity = vel

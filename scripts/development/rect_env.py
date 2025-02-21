@@ -14,7 +14,7 @@ s['seed_env'] = 27
 s['seed_plan'] = 20
 
 
-class MyMap(RectangleEmpty, Empty):
+class MyMap(RectangleEmpty, Piped):
     pass
 
 
@@ -51,6 +51,5 @@ for i in range(10000):
         print(info)
         env.env_method("import_start", state)
         obs = env.reset()
-
 
     env.render()

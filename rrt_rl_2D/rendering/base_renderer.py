@@ -2,6 +2,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 import pygame
+import pygame.freetype
 
 if TYPE_CHECKING:
     from ..simulator.simulator import Simulator
@@ -17,6 +18,6 @@ class BaseRenderer(ABC):
 
     @staticmethod
     def _create_font():
-        pygame.font.init()
+        pygame.freetype.init()
         font_path = Path(__file__).parent / 'Arial.ttf'
         return pygame.freetype.Font(font_path, 20)
