@@ -60,18 +60,18 @@ class CableRadius(BaseEnv):
     def _get_reward(self):
         if self.map.agent.outer_collision_idxs:
             self.fail = True
-            return 0, True
+            return -1000, True
 
         distances = self._get_target_distance_vecs()
 
         if np.all(np.linalg.norm(distances, axis=1) < self.goal.threshold):
             self.reached = True
-            return 1000, True
+            return 100000, True
 
         potential = self._calc_potential(distances)
         if self.last_target_potential == 0:
             self.last_target_potential = potential  # return zero
-        reward = potential - self.last_target_potential
+        reward = 10 * (potential - self.last_target_potential) - 20
 
         self.last_target_potential = potential
         return reward, False
@@ -107,18 +107,39 @@ class CableRadius(BaseEnv):
         self.reached = False
 
 
-class CableRadiusI(ImportableEnv, CableRadius):
-    """
-    Standard Importable from CableRadius
-    """
+class CableRadiusNearestObs(CableRadius):
+    def _create_observation_space(self):
+        limit = max(self.map.cfg['width'], self.map.cfg['height'])
+        return gym.spaces.Box(low=-limit, high=limit, shape=(self.agent_len * 4,), dtype=np.float64)
 
-    pass
+    def _get_obstacle_distance_vecs(self):
+        responses = np.array([self.map.sim._space.point_query_nearest(
+            x.tolist(), (self.map.cfg['height']**2 + self.map.cfg['width']**2)**0.5, self.my_filter).point for x in self.map.agent.position])
+        return responses - self.map.agent.position
+
+    def _get_observation(self):
+        target_distances = self._get_target_distance_vecs()
+        obstacle_distances = self._get_obstacle_distance_vecs()
+        return np.concatenate((target_distances.flatten(), obstacle_distances.flatten()))
+
+    def _get_reward(self):
+        return super()._get_reward()
 
 
-class CableRadiusR(ResetableEnv, CableRadius):
-    """
-    Standard Resetable from CableRadius, custom reset_goal
-    """
+class CableRadiusNearestObsVel(CableRadiusNearestObs):
+    def _create_observation_space(self):
+        limit = max(self.map.cfg['width'], self.map.cfg['height'])
+        return gym.spaces.Box(low=-limit, high=limit, shape=(self.agent_len * 6,), dtype=np.float64)
+
+    def _get_observation(self):
+        target_distances = self._get_target_distance_vecs()
+        obstacle_distances = self._get_obstacle_distance_vecs()
+        velocities = self.map.cable.velocity
+        return np.concatenate((target_distances.flatten(), obstacle_distances.flatten(), velocities.flatten()))
+
+
+# Shortcuts so the creation of the environments is easier
+class CustomResetableEnv(ResetableEnv, CableRadius):
 
     def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
         super().__init__(cur_map, scale_factor, node_factory,
@@ -133,3 +154,49 @@ class CableRadiusR(ResetableEnv, CableRadius):
             self.node_manager.wanted_position = pos
             self.goal = self.node_manager.create_goal()
         self.goal.goal = pos
+
+
+class CableRadiusI(ImportableEnv, CableRadius):
+    """
+    Standard Importable from CableRadius
+    """
+
+    pass
+
+
+class CableRadiusR(CustomResetableEnv, CableRadius):
+    """
+    Standard Resetable from CableRadius, custom reset_goal
+    """
+
+
+class CableRadiusNearestObsI(ImportableEnv, CableRadiusNearestObs):
+    """
+    Standard Importable from CableRadiusNearestObs
+    """
+
+    pass
+
+
+class CableRadiusNearestObsVelI(ImportableEnv, CableRadiusNearestObsVel):
+    """
+    Standard Importable from CableRadiusNearestObsVel
+    """
+
+    pass
+
+
+class CableRadiusNearestObsR(CustomResetableEnv, CableRadiusNearestObs):
+    """
+    Standard Resetable from CableRadiusNearestObs, custom reset_goal
+    """
+
+    pass
+
+
+class CableRadiusNearestObsVelR(CustomResetableEnv, CableRadiusNearestObsVel):
+    """
+    Standard Resetable from CableRadiusNearestObsVel, custom reset_goal
+    """
+
+    pass

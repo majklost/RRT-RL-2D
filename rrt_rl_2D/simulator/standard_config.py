@@ -25,7 +25,7 @@ STANDARD_CONFIG: StandardConfig = {
     'gravity': (0, 0),
     'damping': 0.15,
     'cable_length': 300,
-    'seg_num': 20,
+    'seg_num': 10,
     'seed_env': None,
     'seed_plan': None,
     'check_dimensions': (10, 10),
