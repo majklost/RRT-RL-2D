@@ -45,7 +45,7 @@ class BaseEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         self._reset()
-        
+
         return self._get_observation(), self._get_info()
 
     def _reset(self):
@@ -137,7 +137,7 @@ class ResetableEnv(BaseEnv):
         assert not self.import_called, "Environment should either be reset or import start and goal, not both"
 
         self.reset_called = True
-        self._on_start_g_change()
+
         pos = self._reset_position()
         self.map.agent.position = pos
         self.start = self.export_state()
@@ -146,7 +146,7 @@ class ResetableEnv(BaseEnv):
         """
         Resets the goal node.
         """
-        self._on_start_g_change()
+
         pos = self._reset_position()
         if self.goal is None:
             self.node_manager.wanted_position = pos
