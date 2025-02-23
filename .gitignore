@@ -1,8 +1,9 @@
 #custom
-experiments_rl/
+experiments/
 data/
 archived/
 .vscode/
+
 
 .VSCodeCounte/
 # Byte-compiled / optimized / DLL files

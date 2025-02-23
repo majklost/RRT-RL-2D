@@ -25,8 +25,6 @@ class EnvRenderer(BaseRenderer):
         self.font = self._create_font()
         self.clbs = []
 
-    
-
     def register_callback(self, clb):
         self.clbs.append(clb)
 
