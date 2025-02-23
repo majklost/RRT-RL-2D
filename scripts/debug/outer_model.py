@@ -16,7 +16,7 @@ import time
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3 import PPO
 from rrt_rl_2D.RL.training_utils import standard_wrap, create_callback_list, get_name, create_multi_env
-
+from rrt_rl_2D.utils.save_manager import load_manager, get_run_paths
 from rrt_rl_2D import *
 from rrt_rl_2D.envs.cable_radius import CableRadiusI
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
@@ -24,19 +24,28 @@ from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
+from rrt_rl_2D.makers.makers import CableRadius
+
+
+EXPERIMENTS_PATH = Path(__file__).parent.parent.parent / "experiments" / 'RL'
+EXPERIMENTS_PATH.mkdir(exist_ok=True, parents=True)
+load_manager(EXPERIMENTS_PATH)
+BASE_NAME = 'cable-radius-'
+
 
 cfg = STANDARD_CONFIG.copy()
 cfg['checkpoint_period'] = 120
-cfg['seed_env'] = 27
-cfg['seed_plan'] = 25
+cfg['seed_env'] = 21
+cfg['seed_plan'] = 20
 # cfg['seed_plan'] = 15
-cfg['threshold'] = 200
+cfg['threshold'] = cfg['cable_length'] / 2
+cfg['seg_num'] = 10
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
 node_manager.wanted_threshold = cfg['threshold']
 
 
-class MyMap(Piped):
+class MyMap(NonConvex):
     pass
 
 
@@ -70,9 +79,12 @@ def raw_maker():
 
 
 maker = standard_wrap(raw_maker, max_episode_steps=1000)
+# maker, _ = CableRadius.obs_vel_stronger_stones(
+#     render_mode='human', resetable=False)
 
-norm_path = Path('./scripts/debug/test_norms.pkl')
-env = create_multi_env(maker, 1, normalize_path=norm_path)
+paths = get_run_paths("cable-radius-obs_vel_stronger_fast", run_cnt=11)
+
+env = create_multi_env(maker, 1, normalize_path=paths['norm'])
 env.training = False
 
 overall_goal = GoalNode(
@@ -81,10 +93,9 @@ s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
     storage, distance_fnc, overall_goal, cfg)
 
 
-model_path = Path('./scripts/debug/test_model.zip')
-model = PPO.load(model_path, device='cpu', env=env)
+model = PPO.load(paths['model_best'], device='cpu', env=env)
 
-planner = VecEnvPlanner(env, LinearModel(), cfg)
+planner = VecEnvPlanner(env, model, cfg)
 
 start_node = env.env_method("export_state")
 response = PlannerResponse(start_node, {})
@@ -105,7 +116,8 @@ def custom_clb(screen, font):
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
 
-for i in range(7000):
+
+for i in range(20000):
     if not s_wrapper.want_next_iter:
         print("Goal reached")
         break
@@ -120,8 +132,8 @@ for i in range(7000):
 
     if response.data.get('timeout', False):
         print("Timeout")
-    if i == 100:
-        env.env_method("set_renderer", renderer)
+    # if i == 100:
+    #     env.env_method("set_renderer", renderer)
 
     s_wrapper.save_to_storage(response)
     if i % 100 == 0:

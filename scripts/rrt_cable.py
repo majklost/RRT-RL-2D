@@ -3,7 +3,7 @@ import pygame
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from rrt_rl_2D import *
-from rrt_rl_2D.envs.cable_radius import CableRadiusI
+from rrt_rl_2D.envs.cable_env import CableEnvI
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
@@ -11,17 +11,20 @@ from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
 
 cfg = STANDARD_CONFIG.copy()
-cfg['checkpoint_period'] = 60
-cfg['seed_env'] = 27
-cfg['seed_plan'] = 25
+cfg['checkpoint_period'] = 20
+cfg['seed_env'] = 25
+cfg['seed_plan'] = 115
 # cfg['seed_plan'] = 15
-cfg['threshold'] = 40
+cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
-node_manager = node_managers.VelNodeManager(cfg)
-node_manager.wanted_threshold = 250
+
+# ctrl_idxs = [0, cfg['seg_num'] // 2, cfg['seg_num'] - 1]
+ctrl_idxs = None
+node_manager = node_managers.ControllableManager(cfg, ctrl_idxs)
+node_manager.wanted_threshold = cfg['threshold']
 
 
-class MyMap(StandardStones):
+class MyMap(AlmostEmpty):
     pass
 
 
@@ -43,15 +46,14 @@ def distance_fnc(n1, n2):
     return np.linalg.norm(n1.agent_pos - n2.agent_pos)
 
 
-storage = storages.GNAT(distance_fnc)
-sampler = NDIMSampler((0, 0), (cfg["width"], cfg["height"]))
-
-dummy_renderer = NullRenderer()
 cur_map = MyMap(cfg)
+storage = storages.GNAT(distance_fnc)
+sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                        (cfg["width"], cfg["height"], 2 * np.pi))
 
 
 def maker():
-    return CableRadiusI(cur_map, 300, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
+    return CableEnvI(cur_map, 600, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
 
 
 env = make_vec_env(maker, 1)
@@ -75,10 +77,16 @@ def custom_clb(screen, font):
     for chpoint in chpoints:
         for p in chpoint:
             pygame.draw.circle(screen, (0, 255, 0), p, 5)
+        for i in range(len(chpoint) - 1):
+            pygame.draw.line(screen, (0, 255, 0), chpoint[i], chpoint[i + 1])
     s_wrapper.render_clb(screen, font)
 
 
-for i in range(20000):
+renderer = EnvRenderer(cfg)
+renderer.register_callback(custom_clb)
+# env.env_method("set_renderer", renderer)
+
+for i in range(10000):
     if not s_wrapper.want_next_iter:
         print("Goal reached")
         break
@@ -93,15 +101,14 @@ for i in range(20000):
 
     if response.data.get('timeout', False):
         print("Timeout")
-    # if i == 5500:
-    #     env.env_method("set_renderer", renderer)
+    # if i == 5000:
+        # pass
+        # env.env_method("set_renderer", renderer)
 
     s_wrapper.save_to_storage(response)
     if i % 100 == 0:
         print("Iteration: ", i)
 
-renderer = EnvRenderer(cfg)
-renderer.register_callback(custom_clb)
 env.env_method("set_renderer", renderer)
 env.render()
 input()

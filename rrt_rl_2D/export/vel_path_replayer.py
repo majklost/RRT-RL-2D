@@ -47,3 +47,6 @@ class VelPathReplayerCable(VelPathReplayer):
         for node in self.path.nodes:
             for p in node.agent_pos:
                 pygame.draw.circle(screen, (0, 255, 0), p, 5)
+            for i in range(1, len(node.agent_pos)):
+                pygame.draw.line(
+                    screen, (0, 255, 0), node.agent_pos[i - 1], node.agent_pos[i], 2)
