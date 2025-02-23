@@ -30,3 +30,5 @@ class NodeManager:
         tn.agent_pos = env.map.agent.position
         tn.state = state
         return tn
+
+

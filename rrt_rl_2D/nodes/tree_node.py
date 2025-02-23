@@ -12,6 +12,7 @@ class TreeNode(Node):
         self.agent_pos = None
         self.parent = None  # Parent node : TreeNode | None
 
+
     @property
     def state(self):
         return self._state

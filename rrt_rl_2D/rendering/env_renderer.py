@@ -14,16 +14,20 @@ class EnvRenderer(BaseRenderer):
     """
 
     def __init__(self, cfg: StandardConfig):
+        self.cfg = cfg
+        self.clbs = []
+        self.initiated = False
+
+    def _delayed_init(self):
         pygame.init()
-        width = cfg['width']
-        height = cfg['height']
-        self.fps = cfg['fps']
+        width = self.cfg['width']
+        height = self.cfg['height']
+        self.fps = self.cfg['fps']
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         self.options = DrawOptions(self.screen)
         self.options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
         self.font = self._create_font()
-        self.clbs = []
 
     def register_callback(self, clb):
         self.clbs.append(clb)
@@ -33,6 +37,9 @@ class EnvRenderer(BaseRenderer):
             clb(screen, self.font)
 
     def render(self, simulator):
+        if not self.initiated:
+            self._delayed_init()
+            self.initiated = True
 
         self.screen.fill((255, 255, 255))
         simulator.draw_on(self.options)

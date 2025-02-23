@@ -429,7 +429,7 @@ def get_run_paths(experiment_name: str, run_cnt: int = -1):
         -- model_last: (Path) the path to the last model
         -- model_best: (Path) the path to the best model
         -- norm: (Path) the path to the VecNormalizer
-        -- env_name: (str) the name of the environment
+        -- maker_name: (str) the name of the maker
     """
     return manager.get_run_paths(experiment_name, run_cnt)
 
