@@ -18,10 +18,14 @@ class CableRadius(BaseEnv):
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
         self.last_start = None
+        self.last_action = None
+        self.last_reward = 0
+        self.cur_return = 0
         self._reset()
 
     def step(self, action):
         action = self._process_action(action)
+        self.last_action = action
         for i in range(self.agent_len):
             force = action[i * 2: i * 2 + 2]
             if np.linalg.norm(force) > 1:
@@ -35,6 +39,8 @@ class CableRadius(BaseEnv):
         obs = self._get_observation()
         reward, done = self._get_reward()
         info = self._get_info()
+        self.last_reward = reward
+        self.cur_return += reward
         return obs, reward, done, False, info
 
     def _create_observation_space(self):
@@ -98,13 +104,29 @@ class CableRadius(BaseEnv):
             pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
                              self.map.agent.position[i] + target_vecs[i], 1)
 
+    def _render_return(self, screen, font):
+        font.render_to(screen, (50, 50),
+                       f"Reward: {self.last_reward}")
+        font.render_to(screen, (50, 150),
+                       f"Return: {self.cur_return}")
+
+    def _render_forces(self, screen):
+        for i in range(self.agent_len):
+            force = self.last_action[i * 2: i * 2 + 2]
+            pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
+                             self.map.agent.position[i] + force // 2, 2)
+
     def _additional_render(self, screen, font, **kwargs):
         self._render_goal(screen)
+        self._render_forces(screen)
+        self._render_return(screen, font)
 
     def _reset(self):
         self.last_target_potential = 0
         self.fail = False
         self.reached = False
+        self.last_reward = 0
+        self.cur_return = 0
 
 
 class CableRadiusNearestObs(CableRadius):
@@ -125,6 +147,15 @@ class CableRadiusNearestObs(CableRadius):
     def _get_reward(self):
         return super()._get_reward()
 
+    def _additional_render(self, screen, font, **kwargs):
+        self._render_obstacles(screen)
+        super()._additional_render(screen, font, **kwargs)
+
+    def _render_obstacles(self, screen):
+        for i in range(self.agent_len):
+            pygame.draw.line(screen, (0, 255, 0), self.map.agent.position[i],
+                             self.map.agent.position[i] + self._get_obstacle_distance_vecs()[i], 3)
+
 
 class CableRadiusNearestObsVel(CableRadiusNearestObs):
     def _create_observation_space(self):
@@ -134,7 +165,7 @@ class CableRadiusNearestObsVel(CableRadiusNearestObs):
     def _get_observation(self):
         target_distances = self._get_target_distance_vecs()
         obstacle_distances = self._get_obstacle_distance_vecs()
-        velocities = self.map.cable.velocity
+        velocities = self.map.agent.velocity
         return np.concatenate((target_distances.flatten(), obstacle_distances.flatten(), velocities.flatten()))
 
 
