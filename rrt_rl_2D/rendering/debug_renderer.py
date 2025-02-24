@@ -38,8 +38,8 @@ class DebugRenderer(BaseRenderer):
 
     def render(self, simulator: Simulator):
         self.cur_scene.fill((255, 255, 255))
-        simulator.draw_on(self._options)
         self._additional_drawings()
+        simulator.draw_on(self._options)
 
         self.display.blit(self.cur_scene, (0, 0))
         pygame.display.update()

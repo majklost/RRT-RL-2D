@@ -26,10 +26,6 @@ class CableRadiusNearestObs(CableRadius):
         limit = max(self.map.cfg['width'], self.map.cfg['height'])
         return gym.spaces.Box(low=-limit, high=limit, shape=(self.agent_len * 4,), dtype=np.float64)
 
-    def _get_obstacle_distance_vecs(self):
-        responses = np.array([self.map.sim._space.point_query_nearest(
-            x.tolist(), (self.map.cfg['height']**2 + self.map.cfg['width']**2)**0.5, self.my_filter).point for x in self.map.agent.position])
-        return responses - self.map.agent.position
 
     def _get_observation(self):
         target_distances = self._get_target_distance_vecs()

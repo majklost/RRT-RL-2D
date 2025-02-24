@@ -13,19 +13,19 @@ from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerRect
 cfg = STANDARD_CONFIG.copy()
 cfg['checkpoint_period'] = 60
 cfg['seed_env'] = 27
-cfg['seed_plan'] = 25
-# cfg['seed_plan'] = 15
-cfg['threshold'] = 40
+# cfg['seed_plan'] = 25
+cfg['seed_plan'] = 65
+cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
 
 
-class MyMap(RectangleEmpty, StandardStones):
+class MyMap(RectangleEmpty, Piped):
     pass
 
 
 class LinearModel(BaseManualModel):
-    def predict(self, obs):
+    def predict(self, obs, **kwargs):
         return obs, None
 
 

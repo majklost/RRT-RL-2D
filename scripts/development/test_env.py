@@ -1,3 +1,5 @@
+import numpy as np
+
 # Give goal and start points to the environment
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
@@ -5,6 +7,7 @@ from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
 from rrt_rl_2D.maps import *
 from rrt_rl_2D.assets.cable import Cable
 from rrt_rl_2D.envs.cable_env import CableEnvR
+from rrt_rl_2D.envs.blend_env import BlendEnvR
 from rrt_rl_2D.controllers.env_controller import CableEnvController, RectEnvController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 from rrt_rl_2D.nodes import GoalNode

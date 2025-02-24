@@ -5,6 +5,7 @@ from ..simulator.standard_config import STANDARD_CONFIG
 from ..maps import *
 from ..node_managers import NodeManager
 from ..envs.debug_radius import CableRadiusEmpty
+from ..envs.blend_env import BlendEnvR, BlendEnvI
 
 
 class CableRadius:
@@ -56,6 +57,48 @@ class Debug:
 
         def raw_maker():
             return CableRadiusEmpty(render_mode='human')
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '=')
+
+
+class Blend:
+    @staticmethod
+    def first_try(cur_map_maker=None, render_mode=None, resetable=True):
+
+        cfg = STANDARD_CONFIG.copy()
+        cfg['threshold'] = 10
+        nm = NodeManager(cfg)
+
+        def raw_maker():
+            if cur_map_maker is None:
+                cur_map = AlmostEmpty(cfg)
+            else:
+                cur_map = cur_map_maker()
+
+            if resetable:
+                return BlendEnvR(cur_map, 600, nm, render_mode=render_mode)
+            else:
+                return BlendEnvI(cur_map, 600, nm, render_mode=render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '=')
+
+    @staticmethod
+    def standard_stones(raw_maker=None, render_mode=None, resetable=True):
+        if raw_maker is None:
+            cfg = STANDARD_CONFIG.copy()
+            cfg['threshold'] = 10
+            nm = NodeManager(cfg)
+
+            def raw_maker():
+                cur_map = StandardStones(cfg)
+
+                if resetable:
+                    return BlendEnvR(cur_map, 600, nm, render_mode=render_mode)
+                else:
+                    return BlendEnvI(cur_map, 600, nm, render_mode=render_mode)
+            raw_maker = raw_maker
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(__class__.__name__ + '=')

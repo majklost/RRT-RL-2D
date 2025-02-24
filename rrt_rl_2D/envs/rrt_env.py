@@ -20,7 +20,7 @@ class BaseEnv(gym.Env):
     def __init__(self, cur_map: Empty, scale_factor, node_manager: NodeManager, render_mode=None, renderer=None):
         super().__init__()
         self.render_mode = render_mode
-        self.renderer = renderer
+
         self.scale_factor = scale_factor
         self.goal = None  # GoalNode
         self.start = None  # TreeNode

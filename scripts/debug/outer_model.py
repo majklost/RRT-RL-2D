@@ -32,12 +32,15 @@ EXPERIMENTS_PATH.mkdir(exist_ok=True, parents=True)
 load_manager(EXPERIMENTS_PATH)
 BASE_NAME = 'cable-radius-'
 
+VANILLA = True
+
 
 cfg = STANDARD_CONFIG.copy()
 cfg['checkpoint_period'] = 120
 cfg['seed_env'] = 21
 cfg['seed_plan'] = 20
 # cfg['seed_plan'] = 15
+cfg['seed_plan'] = 1332
 cfg['threshold'] = cfg['cable_length'] / 2
 cfg['seg_num'] = 10
 init_manager(cfg['seed_env'], cfg['seed_plan'])
@@ -45,12 +48,12 @@ node_manager = node_managers.VelNodeManager(cfg)
 node_manager.wanted_threshold = cfg['threshold']
 
 
-class MyMap(NonConvex):
+class MyMap(StandardStones):
     pass
 
 
 class LinearModel(BaseManualModel):
-    def predict(self, obs):
+    def predict(self, obs, **kwargs):
         return obs, None
 
 
@@ -82,10 +85,8 @@ maker = standard_wrap(raw_maker, max_episode_steps=1000)
 # maker, _ = CableRadius.obs_vel_stronger_stones(
 #     render_mode='human', resetable=False)
 
-paths = get_run_paths("cable-radius-obs_vel_stronger_fast", run_cnt=11)
+paths = get_run_paths("cable-radius-obs_vel_stones_relearn")
 
-env = create_multi_env(maker, 1, normalize_path=paths['norm'])
-env.training = False
 
 overall_goal = GoalNode(
     (cfg['width'] - 200, cfg['height'] // 2), threshold=250)
@@ -93,9 +94,15 @@ s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
     storage, distance_fnc, overall_goal, cfg)
 
 
-model = PPO.load(paths['model_best'], device='cpu', env=env)
+if VANILLA:
+    env = create_multi_env(maker, 1, normalize=False)
+    planner = VecEnvPlanner(env, LinearModel(), cfg)
+else:
+    env = create_multi_env(maker, 1, normalize_path=paths['norm'])
+    env.training = False
+    model = PPO.load(paths['model_best'], device='cpu', env=env)
+    planner = VecEnvPlanner(env, model, cfg)
 
-planner = VecEnvPlanner(env, model, cfg)
 
 start_node = env.env_method("export_state")
 response = PlannerResponse(start_node, {})
@@ -115,9 +122,9 @@ def custom_clb(screen, font):
 
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
+env.env_method("set_renderer", renderer)
 
-
-for i in range(20000):
+for i in range(15000):
     if not s_wrapper.want_next_iter:
         print("Goal reached")
         break

@@ -1,14 +1,25 @@
 import numpy as np
 import pygame
+from pathlib import Path
 import time
 from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3 import PPO
 from rrt_rl_2D import *
-from rrt_rl_2D.envs.cable_env import CableEnvI
+from rrt_rl_2D.makers import Blend
+from rrt_rl_2D.envs.blend_env import BlendEnvI
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
+from rrt_rl_2D.utils.save_manager import load_manager, get_run_paths
+
+from rrt_rl_2D.RL.training_utils import create_multi_env
+
+EXPERIMENTS_PATH = Path(__file__).parent.parent / "experiments" / 'RL'
+EXPERIMENTS_PATH.mkdir(exist_ok=True, parents=True)
+load_manager(EXPERIMENTS_PATH)
+
 
 cfg = STANDARD_CONFIG.copy()
 # cfg['seg_num'] = 60
@@ -16,8 +27,8 @@ cfg = STANDARD_CONFIG.copy()
 
 cfg['checkpoint_period'] = 20
 cfg['seed_env'] = 25
-cfg['seed_plan'] = 115
-# cfg['seed_plan'] = 15
+# cfg['seed_plan'] = 115
+cfg['seed_plan'] = 15
 cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
@@ -28,12 +39,12 @@ node_manager = node_managers.ControllableManager(cfg, ctrl_idxs)
 node_manager.wanted_threshold = cfg['threshold']
 
 
-class MyMap(StandardStones):
+class MyMap(ThickStones):
     pass
 
 
 class LinearModel(BaseManualModel):
-    def predict(self, obs, **kwargs):
+    def predict(self, obs):
         return obs, None
 
 
@@ -56,17 +67,24 @@ sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
                         (cfg["width"], cfg["height"], 2 * np.pi))
 
 
-def maker():
-    return CableEnvI(cur_map, 600, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
+def raw_maker():
+    return BlendEnvI(cur_map, 600, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
 
 
-env = make_vec_env(maker, 1)
+paths = get_run_paths('cable-blend-blend_basic', run_cnt=3)
+maker, _ = Blend.standard_stones(raw_maker)
+
+
+model = PPO.load(paths['model_best'], device='cpu')
+
+
+env = create_multi_env(maker, 1, normalize_path=paths['norm'])
 overall_goal = GoalNode(
     (cfg['width'] - 200, cfg['height'] // 2), threshold=250)
 s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
     storage, distance_fnc, overall_goal, cfg)
 
-planner = VecEnvPlanner(env, LinearModel(), cfg)
+planner = VecEnvPlanner(env, model, cfg)
 
 start_node = env.env_method("export_state")
 response = PlannerResponse(start_node, {})
@@ -86,11 +104,12 @@ def custom_clb(screen, font):
     s_wrapper.render_clb(screen, font)
 
 
+dummy = NullRenderer()
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
 # env.env_method("set_renderer", renderer)
 try:
-    for i in range(20000):
+    for i in range(10000):
         if not s_wrapper.want_next_iter:
             print("Goal reached")
             break
@@ -105,9 +124,9 @@ try:
 
         if response.data.get('timeout', False):
             print("Timeout")
-        # if i == 5000:
-            # pass
-            # env.env_method("set_renderer", renderer)
+        # if i == 1000:
+        #     # pass
+        #     env.env_method("set_renderer", renderer)
 
         s_wrapper.save_to_storage(response)
         if i % 100 == 0:

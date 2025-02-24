@@ -42,7 +42,7 @@ class VecEnvPlanner(BasePlanner):
         data = dict(reached=False)
 
         for i in range(max_steps):
-            action, _ = self.model.predict(obs)
+            action, _ = self.model.predict(obs, deterministic=True)
             obs, reward, done, info = self.env.step(action)
             if done:
                 if info[0]['fail']:
