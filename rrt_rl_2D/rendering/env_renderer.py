@@ -42,8 +42,8 @@ class EnvRenderer(BaseRenderer):
             self.initiated = True
 
         self.screen.fill((255, 255, 255))
-        simulator.draw_on(self.options)
         self._additional_render(self.screen)
+        simulator.draw_on(self.options)
         pygame.display.flip()
         self.clock.tick(self.fps)
 

@@ -16,14 +16,14 @@ class CableEnv(BaseEnv):
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
         self.last_start = None
-        self.last_action = None
+        self.last_forces = None
         self.last_reward = 0
         self.cur_return = 0
         self._reset()
 
     def step(self, action):
         action = self._process_action(action)
-        self.last_action = action
+        self.last_forces = action
         if self.goal.controllable_idxs is not None:
             idxs = self.goal.controllable_idxs
         else:
@@ -116,15 +116,16 @@ class CableEnv(BaseEnv):
                        f"Return: {self.cur_return}")
 
     def _render_forces(self, screen):
-        if self.goal.controllable_idxs is not None:
-            idxs = self.goal.controllable_idxs
-        else:
-            idxs = range(self.agent_len)
+        pass
+        # if self.goal.controllable_idxs is not None:
+        #     idxs = self.goal.controllable_idxs
+        # else:
+        #     idxs = range(self.agent_len)
 
-        for i in idxs:
-            force = self.last_action[i * 2: i * 2 + 2]
-            pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
-                             self.map.agent.position[i] + force // 2, 2)
+        # for i in idxs:
+        #     force = self.last_forces[i]
+        #     pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
+        #                      self.map.agent.position[i] + force // 2, 2)
 
     def _additional_render(self, screen, font, **kwargs):
         self._render_goal(screen)
@@ -137,6 +138,11 @@ class CableEnv(BaseEnv):
         self.reached = False
         self.last_reward = 0
         self.cur_return = 0
+
+    def _get_obstacle_distance_vecs(self):
+        responses = np.array([self.map.sim._space.point_query_nearest(
+            x.tolist(), (self.map.cfg['height']**2 + self.map.cfg['width']**2)**0.5, self.my_filter).point for x in self.map.agent.position])
+        return responses - self.map.agent.position
 
 
 class CableEnvR(ResetableEnv, CableEnv):
