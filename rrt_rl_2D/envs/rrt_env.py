@@ -17,9 +17,10 @@ from abc import abstractmethod
 class BaseEnv(gym.Env):
     metadata = {'render.modes': ['human', None]}
 
-    def __init__(self, cur_map: Empty, scale_factor, node_manager: NodeManager, render_mode=None, renderer=None):
+    def __init__(self, cur_map: Empty, scale_factor, node_manager: NodeManager, render_mode=None):
         super().__init__()
         self.render_mode = render_mode
+        self.renderer = None
 
         self.scale_factor = scale_factor
         self.goal = None  # GoalNode
@@ -33,11 +34,9 @@ class BaseEnv(gym.Env):
         self.cur_return = 0
 
         self.map = cur_map
-        if render_mode is not None:
-            if renderer is None:
-                self.set_renderer(EnvRenderer(self.map.cfg))
-            else:
-                self.set_renderer(renderer)
+
+    def get_map(self):
+        return self.map
 
     def set_renderer(self, renderer: EnvRenderer):
         self.renderer = renderer

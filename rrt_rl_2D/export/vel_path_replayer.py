@@ -25,7 +25,7 @@ class VelPathReplayer:
             for vel in node.velocity_buffer:
                 self.map.sim.step()
                 self.map.agent.velocity = vel
-
+            print(f"node {i} pos:{self.map.agent.position}")
             self.map.sim.import_from(node.state)
             self.map.sim.step()
 

@@ -9,7 +9,7 @@ from torch import nn
 from rrt_rl_2D import *
 from rrt_rl_2D.RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
 
-from rrt_rl_2D.makers import Blend
+from rrt_rl_2D.makers import BlendMaker
 
 from rrt_rl_2D.utils.save_manager import load_manager, get_paths, get_run_paths
 
@@ -20,7 +20,7 @@ BASE_NAME = 'cable-blend-'
 
 
 def blend_basic():
-    maker, maker_name = Blend.first_try()
+    maker, maker_name = BlendMaker.first_try()
     paths = get_paths(get_name(BASE_NAME), 'comment', maker_name)
     env = create_multi_env(
         maker, 32, normalize=True)

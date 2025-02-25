@@ -20,7 +20,7 @@ init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
 
 
-class MyMap(RectangleEmpty, Piped):
+class MyMap(RectangleEmpty, Empty):
     pass
 
 

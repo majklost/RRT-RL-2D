@@ -26,7 +26,6 @@ class CableRadiusNearestObs(CableRadius):
         limit = max(self.map.cfg['width'], self.map.cfg['height'])
         return gym.spaces.Box(low=-limit, high=limit, shape=(self.agent_len * 4,), dtype=np.float64)
 
-
     def _get_observation(self):
         target_distances = self._get_target_distance_vecs()
         obstacle_distances = self._get_obstacle_distance_vecs()
@@ -60,9 +59,9 @@ class CableRadiusNearestObsVel(CableRadiusNearestObs):
 # Shortcuts so the creation of the environments is easier
 class CustomResetableEnv(ResetableEnv, CableRadius):
 
-    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory,
-                         render_mode=render_mode, renderer=renderer)
+                         render_mode=render_mode)
 
         self.custom_sampler = NDIMSampler((self.map.MARGIN, self.map.MARGIN), (
             self.map.cfg['width'] - self.map.MARGIN, self.map.cfg["height"] - self.map.MARGIN))

@@ -10,8 +10,8 @@ class TreeNode(Node):
         super().__init__()
         self._state = None
         self.agent_pos = None
+        self.agent_rot = None
         self.parent = None  # Parent node : TreeNode | None
-
 
     @property
     def state(self):

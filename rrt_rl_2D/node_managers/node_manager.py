@@ -28,7 +28,6 @@ class NodeManager:
         tn = TreeNode()
         state = env.map.sim.export()
         tn.agent_pos = env.map.agent.position
+        tn.agent_rot = env.map.agent.orientation
         tn.state = state
         return tn
-
-

@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import time
 from stable_baselines3.common.env_util import make_vec_env
+from rrt_rl_2D.makers.makers import StandardCableMaker
 from rrt_rl_2D import *
 from rrt_rl_2D.envs.cable_env import CableEnvI
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
@@ -9,6 +10,8 @@ from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
+from rrt_rl_2D.export.vel_path_saver import VelPathSaver
+
 
 cfg = STANDARD_CONFIG.copy()
 # cfg['seg_num'] = 60
@@ -19,6 +22,7 @@ cfg['seed_env'] = 25
 cfg['seed_plan'] = 115
 # cfg['seed_plan'] = 15
 cfg['threshold'] = 20
+MAP_NAME = 'Empty'
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
 ctrl_idxs = None
@@ -26,10 +30,6 @@ ctrl_idxs = None
 # ctrl_idxs = [0, cfg['seg_num'] // 2, cfg['seg_num'] - 1]
 node_manager = node_managers.ControllableManager(cfg, ctrl_idxs)
 node_manager.wanted_threshold = cfg['threshold']
-
-
-class MyMap(StandardStones):
-    pass
 
 
 class LinearModel(BaseManualModel):
@@ -50,17 +50,17 @@ def distance_fnc(n1, n2):
     return np.linalg.norm(n1.agent_pos - n2.agent_pos)
 
 
-cur_map = MyMap(cfg)
+maker, maker_name, objects = StandardCableMaker.first_try(MAP_NAME, cfg)
+
+
+env = make_vec_env(maker, 1)
+cur_map = env.env_method("get_map")[0]
+
 storage = storages.GNAT(distance_fnc)
 sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
                         (cfg["width"], cfg["height"], 2 * np.pi))
 
 
-def maker():
-    return CableEnvI(cur_map, 600, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
-
-
-env = make_vec_env(maker, 1)
 overall_goal = GoalNode(
     (cfg['width'] - 200, cfg['height'] // 2), threshold=250)
 s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
@@ -120,5 +120,7 @@ finally:
 
 path = s_wrapper.get_path()
 print("Path length: ", len(path.nodes))
+save = VelPathSaver(maker_name, path, cfg, MAP_NAME, {}, __file__)
+save.save(".", "test")
 replayer = VelPathReplayerCable(cur_map, path)
 replayer.replay()

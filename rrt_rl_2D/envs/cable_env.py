@@ -7,9 +7,9 @@ from ..samplers import *
 
 
 class CableEnv(BaseEnv):
-    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory,
-                         render_mode=render_mode, renderer=renderer)
+                         render_mode=render_mode)
 
         self.agent_len = len(self.map.agent.bodies)
         self._set_filter()

@@ -24,7 +24,7 @@ from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
-from rrt_rl_2D.makers.makers import CableRadius
+from rrt_rl_2D.makers.makers import CableRadiusMaker
 
 
 EXPERIMENTS_PATH = Path(__file__).parent.parent.parent / "experiments" / 'RL'

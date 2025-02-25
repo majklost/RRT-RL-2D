@@ -90,6 +90,11 @@ class Cable(MultiBody):
     def orientation(self):
         return np.array([b.orientation for b in self.bodies])
 
+    @orientation.setter
+    def orientation(self, angle):
+        for i in range(len(self.bodies)):
+            self.bodies[i].orientation = angle[i]
+
     def glob2loc(self, vec):
         transposed = False
         # converts global vector to local vector (rotated by angle)

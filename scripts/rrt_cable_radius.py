@@ -3,12 +3,14 @@ import pygame
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from rrt_rl_2D import *
-from rrt_rl_2D.envs.cable_radius import CableRadiusI
+
+from rrt_rl_2D.makers.makers import CableRadiusMaker
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
+from rrt_rl_2D.export.vel_path_saver import VelPathSaver
 
 cfg = STANDARD_CONFIG.copy()
 cfg['checkpoint_period'] = 60
@@ -19,14 +21,11 @@ cfg['threshold'] = 40
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
 node_manager.wanted_threshold = 250
-
-
-class MyMap(StandardStones):
-    pass
+MAP_NAME = 'Empty'
 
 
 class LinearModel(BaseManualModel):
-    def predict(self, obs):
+    def predict(self, obs, **kwargs):
         return obs, None
 
 
@@ -47,14 +46,13 @@ storage = storages.GNAT(distance_fnc)
 sampler = NDIMSampler((0, 0), (cfg["width"], cfg["height"]))
 
 dummy_renderer = NullRenderer()
-cur_map = MyMap(cfg)
 
 
-def maker():
-    return CableRadiusI(cur_map, 300, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
-
+maker, maker_name, objects = CableRadiusMaker.first_try(MAP_NAME, cfg)
 
 env = make_vec_env(maker, 1)
+cur_map = env.env_method("get_map")[0]
+
 overall_goal = GoalNode(
     (cfg['width'] - 200, cfg['height'] // 2), threshold=250)
 s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
@@ -109,5 +107,7 @@ env.close()
 
 path = s_wrapper.get_path()
 print("Path length: ", len(path.nodes))
+save = VelPathSaver(maker_name, path, cfg, MAP_NAME, {}, __file__)
+save.save(".", "test")
 replayer = VelPathReplayerCable(cur_map, path)
 replayer.replay()
