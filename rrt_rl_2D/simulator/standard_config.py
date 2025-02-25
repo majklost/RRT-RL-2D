@@ -11,6 +11,7 @@ class StandardConfig(TypedDict):
     seg_num: int
     seed_env: int | None
     seed_plan: int | None
+    # Dimensions for checking that no obstacle is nearby
     check_dimensions: Tuple[int, int] | int
     max_steps: int
     checkpoint_period: int  # Period for saving checkpoints

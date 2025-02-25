@@ -14,9 +14,9 @@ class RectEnv(BaseEnv):
     Env with rectangle, 2 degrees of freedom
     """
 
-    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None, renderer=None):
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None):
         super().__init__(cur_map, scale_factor, node_factory,
-                         render_mode=render_mode, renderer=renderer)
+                         render_mode=render_mode)
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
 

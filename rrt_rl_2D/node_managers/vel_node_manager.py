@@ -18,6 +18,7 @@ class VelNodeManager(NodeManager):
         tn = VelTreeNode()
         state = env.map.sim.export()
         tn.agent_pos = env.map.agent.position
+        tn.agent_rot = env.map.agent.orientation
         tn.state = state
         tn.velocity_buffer = np.array(self.velocity_buffer)
         self.velocity_buffer = []

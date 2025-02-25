@@ -3,7 +3,7 @@ experiments/
 data/
 archived/
 .vscode/
-
+*.rpath
 
 .VSCodeCounte/
 # Byte-compiled / optimized / DLL files
