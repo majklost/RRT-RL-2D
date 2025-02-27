@@ -14,15 +14,15 @@ from rrt_rl_2D.export.vel_path_saver import VelPathSaver
 
 
 cfg = STANDARD_CONFIG.copy()
-# cfg['seg_num'] = 60
+# cfg['seg_num'] = 40
 # cfg['cable_length'] = 400
 
 cfg['checkpoint_period'] = 20
-cfg['seed_env'] = 25
+cfg['seed_env'] = 50
 cfg['seed_plan'] = 115
 # cfg['seed_plan'] = 15
 cfg['threshold'] = 20
-MAP_NAME = 'Empty'
+MAP_NAME = 'ThickStones'
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
 ctrl_idxs = None

@@ -20,6 +20,7 @@ class VecEnvPlanner(BasePlanner):
         super().__init__(env)
         self.model = model
         self.cfg = cfg
+        self.step_cnt = 0
         assert env.num_envs == 1, "Planner only supports single environment"
 
     def _link_nodes(self, exports, start):
@@ -31,31 +32,54 @@ class VecEnvPlanner(BasePlanner):
         # for export in exports:
         #     export.parent = start
 
-    def check_path(self, start, goal) -> PlannerResponse:
+    def _env_import(self, start, goal):
         self.env.env_method("import_goal", goal)
         self.env.env_method("import_start", start)
 
-        obs = self.env.reset()
+    def _env_reset(self):
+        return self.env.reset()
+
+    def _env_export(self):
+        return self.env.env_method("export_state")[0]
+
+    def _env_render(self):
+        self.env.render()
+
+    def _env_step(self, action):
+        self.step_cnt += 1
+        return self.env.step(action)
+
+    def _update_inner_stats(self, exports, data):
+        pass
+
+    def check_path(self, start, goal) -> PlannerResponse:
+        self._env_import(start, goal)
+
+        obs = self._env_reset()
         max_steps = self.cfg['max_steps']
         period = self.cfg['checkpoint_period']
         exports = []
-        data = dict(reached=False)
+        data = dict(reached=False, timeout=False, fail=False)
 
         for i in range(max_steps):
             action, _ = self.model.predict(obs, deterministic=True)
-            obs, reward, done, info = self.env.step(action)
+            obs, reward, done, info = self._env_step(action)
+
             if done:
                 if info[0]['fail']:
+                    data['fail'] = True
                     break
                 else:
-                    exports.append(self.env.env_method("export_state")[0])
+                    exports.append(self._env_export())
                     data['reached'] = True
                     break
             elif i % period == 0 and i != 0:
-                exports.append(self.env.env_method("export_state")[0])
-            self.env.render()
+                exports.append(self._env_export())
+            self._env_render()
             if i == max_steps - 1:
                 data['timeout'] = True
 
         self._link_nodes(exports, start)
+        self._update_inner_stats(exports, data)
+
         return PlannerResponse(exports, data)

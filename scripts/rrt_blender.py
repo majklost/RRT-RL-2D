@@ -4,9 +4,8 @@ from pathlib import Path
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3 import PPO
-from rrt_rl_2D.makers.makers import BlendMaker
+from rrt_rl_2D.CLIENT.makers import BlendMaker
 from rrt_rl_2D import *
-from rrt_rl_2D.makers import BlendMaker
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
@@ -25,16 +24,17 @@ load_manager(EXPERIMENTS_PATH)
 
 cfg = STANDARD_CONFIG.copy()
 # cfg['seg_num'] = 60
-# cfg['cable_length'] = 400
+cfg['cable_length'] = 300
 
 cfg['checkpoint_period'] = 20
-cfg['seed_env'] = 25
-cfg['seed_plan'] = 115
-# cfg['seed_plan'] = 15
+cfg['seed_env'] = 50
+# cfg['seed_plan'] = 115
+cfg['seed_plan'] = 66
 cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
-MAP_NAME = 'StandardStones'
+MAP_NAME = 'ThickStones'
+
 
 class LinearModel(BaseManualModel):
     def predict(self, obs):
@@ -101,9 +101,11 @@ renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
 # env.env_method("set_renderer", renderer)
 try:
-    for i in range(10000):
+    for i in range(20000):
         if not s_wrapper.want_next_iter:
             print("Goal reached")
+            print("Iterations: ", i)
+            print("steps sum: ", planner.step_cnt)
             break
 
         qrand_raw = sampler.sample()

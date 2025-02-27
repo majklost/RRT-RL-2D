@@ -1,12 +1,13 @@
-from ..RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
-from ..envs import *
-from ..utils.seed_manager import init_manager
-from ..simulator.standard_config import STANDARD_CONFIG
-from ..maps import str2map
-from ..node_managers import *
-from ..envs.debug_radius import CableRadiusEmpty
-from ..envs.blend_env import BlendEnvR, BlendEnvI
-from ..envs.cable_env import CableEnvR, CableEnvI
+from ...RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
+from ...envs import *
+from ...utils.seed_manager import init_manager
+from ...simulator.standard_config import STANDARD_CONFIG
+from ...maps import str2map, RectangleEmpty
+from ...node_managers import *
+from ...envs.debug_radius import CableRadiusEmpty
+from ...envs.blend_env import BlendEnvR, BlendEnvI
+from ...envs.cable_env import CableEnvR, CableEnvI
+from ..analyzable.analyzable import SimulatorA
 """
 Here you can build your environments so they can be easily imported everywhere
 (for learning, for rrt planning, for saved path replaying, for replaying learned RL models... )
@@ -114,9 +115,30 @@ class StandardCableMaker:
         def raw_maker():
             cur_map = map_cls(cfg)
             if resetable:
-                return CableEnvR(cur_map, 600, nm, render_mode=render_mode)
+                return CableEnvR(cur_map, 300, nm, render_mode=render_mode)
             else:
-                return CableEnvI(cur_map, 600, nm, render_mode=render_mode)
+                return CableEnvI(cur_map, 300, nm, render_mode=render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+
+
+class RectMaker:
+    def first_try(map_name, cfg, render_mode='human', resetable=False, **kwargs):
+        map_cls, cfg = _cfg_map_helper(cfg, map_name)
+
+        nm = VelNodeManager(cfg)
+
+        def raw_maker():
+            cur_map = map_cls(cfg)
+            if resetable:
+                return RectEnvR(cur_map, 1000, nm, render_mode=render_mode)
+            else:
+                return RectEnvI(cur_map, 1000, nm, render_mode=render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+
+
+
+

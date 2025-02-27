@@ -5,13 +5,16 @@ from rrt_rl_2D.maps import *
 from rrt_rl_2D.rendering.debug_renderer import DebugRenderer
 from rrt_rl_2D.controllers.cable_controller import CableController
 from rrt_rl_2D.controllers.rect_controller import RectController
+from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
 
-class MyMap(NonConvex):
+class MyMap(Empty):
     pass
 
 
-m = MyMap()
+cfg = STANDARD_CONFIG.copy()
+cfg['seg_num'] = 40
+m = MyMap(cfg)
 sim = m.sim
 dr = DebugRenderer()
 # controller = RectController(m.agent)
@@ -31,6 +34,8 @@ for i in range(1000):
     pos1.append(m.agent.position)
     sim.step()
     force_buffer.append(m.agent.velocity)
+    if m.agent.outer_collision_idxs:
+        print("Collision ", i)
 
 dr._controller = None
 m.sim.import_from(check)

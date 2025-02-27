@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from stable_baselines3 import PPO
 
 
-from rrt_rl_2D.makers import *
+from rrt_rl_2D.CLIENT import *
 from rrt_rl_2D.utils.save_manager import consistency_check, get_run_paths, load_manager
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.RL.players import play_model

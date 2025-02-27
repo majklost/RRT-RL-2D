@@ -1,4 +1,5 @@
 import pymunk
+from typing import TYPE_CHECKING
 from pymunk.pygame_util import DrawOptions
 
 from dataclasses import dataclass
@@ -6,7 +7,8 @@ from typing import TypedDict
 
 from ..assets.multibody import MultiBody
 from ..assets.singlebody import SingleBody
-from ..rendering.base_renderer import BaseRenderer
+if TYPE_CHECKING:
+    from ..rendering.base_renderer import BaseRenderer
 from .standard_config import STANDARD_CONFIG
 from .collision_data import CollisionData
 
@@ -104,7 +106,7 @@ class Simulator:
                 cid = b.fixedId
                 self.fixed_objects[cid[0]].link_body(b, cid[1:])
 
-    def attach_renderer(self, renderer: BaseRenderer):
+    def attach_renderer(self, renderer: 'BaseRenderer'):
         """
         Register a renderer that will be used to render the simulator
         """
@@ -115,10 +117,17 @@ class Simulator:
         Step the simulator by one step
         :return: True if the simulator is still running, False otherwise
         """
-        self._space.step(1 / self._fps)
+        self._step()
         self._steps += 1
         if self.renderer is not None:
             self.renderer.render(self)
+
+    @property
+    def steps(self):
+        return self._steps
+
+    def _step(self):
+        self._space.step(1 / self._fps)
 
     def draw_on(self, dops: DrawOptions):
         """
