@@ -17,7 +17,7 @@ class Empty:
     Defines the basic environment for the simulation.
     """
 
-    def __init__(self, cfg=STANDARD_CONFIG):
+    def __init__(self, cfg=STANDARD_CONFIG, sim_cls=Simulator):
         self.cfg = cfg
         self._modify_config()
         self._calc_spacing_constants()
@@ -27,7 +27,7 @@ class Empty:
         self.movable_objects = []
         self._add_agent()
         self._add_assets()
-        self._sim = self._create_sim()
+        self._sim = self._create_sim(sim_cls)
 
         self._sampler = self._create_sampler()
 
@@ -62,8 +62,8 @@ class Empty:
         self.agent.set_collision_type(1)
         self.movable_objects.append(self.agent)
 
-    def _create_sim(self):
-        return Simulator(self.movable_objects, self.fixed_objects, self.cfg)
+    def _create_sim(self, sim_cls):
+        return sim_cls(self.movable_objects, self.fixed_objects, self.cfg)
 
     def _init_manager(self):
         init_manager(self.cfg['seed_env'], self.cfg['seed_plan'])

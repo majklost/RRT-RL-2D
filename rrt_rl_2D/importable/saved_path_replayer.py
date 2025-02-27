@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from ..envs.rrt_env import BaseEnv
 from ..rendering.debug_renderer import DebugRenderer
-from ..makers.makers import *
+from ..CLIENT.makers.makers import *
 from ..nodes import VelTreeNode
 import warnings
 

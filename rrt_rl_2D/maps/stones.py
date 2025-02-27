@@ -12,7 +12,7 @@ class ThickStones(Empty):
 
     def _add_stones(self):
         stones = RandomObstacleGroup(
-            np.array([self.EMPTY + 120, 200]), self.cfg['width'] // 6, self.cfg['height'] // 3.5, 3, 3, radius=200)
+            np.array([self.EMPTY + 120, 190]), self.cfg['width'] // 6, self.cfg['height'] // 3.5, 3, 3, radius=180)
         stones.color = (100, 100, 100)
         self.fixed_objects.append(stones)
 
