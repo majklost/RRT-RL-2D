@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-#SBATCH --partition=cpu
+#SBATCH --partition=cpufast
 #SBATCH --time=3:00:00
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=1
 #SBATCH --error=../../submitted%j.err

@@ -4,7 +4,7 @@ import time
 from stable_baselines3.common.env_util import make_vec_env
 from rrt_rl_2D import *
 
-from rrt_rl_2D.makers.makers import CableRadiusMaker
+from rrt_rl_2D.CLIENT.makers import CableRadiusMaker
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
@@ -19,8 +19,7 @@ cfg['seed_plan'] = 25
 # cfg['seed_plan'] = 15
 cfg['threshold'] = 40
 init_manager(cfg['seed_env'], cfg['seed_plan'])
-node_manager = node_managers.VelNodeManager(cfg)
-node_manager.wanted_threshold = 250
+
 MAP_NAME = 'Empty'
 
 
@@ -47,9 +46,9 @@ sampler = NDIMSampler((0, 0), (cfg["width"], cfg["height"]))
 
 dummy_renderer = NullRenderer()
 
-
-maker, maker_name, objects = CableRadiusMaker.first_try(MAP_NAME, cfg)
-
+maker_factory = CableRadiusMaker(MAP_NAME, cfg)
+maker, maker_name, objects = maker_factory.first_try()
+node_manager = objects['nm']
 env = make_vec_env(maker, 1)
 cur_map = env.env_method("get_map")[0]
 
