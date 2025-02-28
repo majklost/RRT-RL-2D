@@ -23,7 +23,7 @@ class CableEnv(BaseEnv):
 
     def step(self, action):
         action = self._process_action(action)
-        self.last_forces = action
+        self.last_forces = []
         if self.goal.controllable_idxs is not None:
             idxs = self.goal.controllable_idxs
         else:
@@ -31,11 +31,13 @@ class CableEnv(BaseEnv):
 
         for i in idxs:
             force = action[i * 2: i * 2 + 2]
+            self.last_forces.append(force)
             if np.linalg.norm(force) > 1:
                 force /= np.linalg.norm(force)
             force *= self.scale_factor
             self.map.agent.bodies[i].apply_force(force)
 
+        self.last_forces = np.array(self.last_forces)
         return super().step(action)
 
     def _create_step_return(self):
@@ -116,16 +118,15 @@ class CableEnv(BaseEnv):
                        f"Return: {self.cur_return}")
 
     def _render_forces(self, screen):
-        pass
-        # if self.goal.controllable_idxs is not None:
-        #     idxs = self.goal.controllable_idxs
-        # else:
-        #     idxs = range(self.agent_len)
+        if self.goal.controllable_idxs is not None:
+            idxs = self.goal.controllable_idxs
+        else:
+            idxs = range(self.agent_len)
 
-        # for i in idxs:
-        #     force = self.last_forces[i]
-        #     pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
-        #                      self.map.agent.position[i] + force // 2, 2)
+        for i in idxs:
+            force = self.last_forces[i]
+            pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
+                             self.map.agent.position[i] + force // 2, 2)
 
     def _additional_render(self, screen, font, **kwargs):
         self._render_goal(screen)

@@ -20,7 +20,9 @@ BASE_NAME = 'cable-radius-'
 
 
 def obs_vel_stronger_fast():
-    maker, maker_name, _ = CableRadiusMaker.first_try(resetable=True)
+    maker_factory = CableRadiusMaker(
+        'AlmostEmpty', None, render_mode='human', resetable=True)
+    maker, maker_name, _ = maker_factory.first_try()
     paths = get_paths(get_name(BASE_NAME),
                       'disabled reset when creating envs', maker_name)
     env = create_multi_env(
@@ -36,7 +38,7 @@ def obs_vel_stronger_fast():
     )
 
     print("Training model")
-    model.learn(total_timesteps=10_000_000, callback=[ch_clb, eval_clb])
+    model.learn(total_timesteps=20_000_000, callback=[ch_clb, eval_clb])
     print("Training done")
 
 
@@ -65,22 +67,30 @@ def obs_vel_stones_relearn():
     """
     Use learned policy from almost empty map to learn on stones map
     """
-    maker, maker_name, _ = CableRadiusMaker.first_try(
-        map_name='StandardStones', resetable=True)
-    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name)
+    MAP_NAME = 'NonConvex'
+    maker_factory = CableRadiusMaker(
+        MAP_NAME, None, render_mode='human', resetable=True)
+    maker, maker_name, _ = maker_factory.first_try()
+    base_paths = get_run_paths(BASE_NAME + 'obs_vel_stronger_fast',
+                               run_cnt=16)
+
+    data = {
+        'map_name': MAP_NAME,
+    }
+
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data)
     env = create_multi_env(
-        maker, 32, normalize=True)
-    base_paths = get_run_paths('cable-radius-obs_vel_stronger_fast')
+        maker, 32, normalize=True, normalize_path=base_paths['norm'])
     eval_env = create_multi_env(
         maker, 1, normalize=True, normalize_path=base_paths['norm'])
 
+    model = PPO.load(base_paths['model_last'], env=env,
+                     verbose=0, tensorboard_log=paths['tb'], device='cpu')
+    model.set_env(env)
     ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
 
-    model = PPO.load(base_paths['model_best'], env=env,
-                     verbose=0, tensorboard_log=paths['tb'], device='cpu')
-
     print("Training model")
-    model.learn(total_timesteps=4000000, callback=[ch_clb, eval_clb])
+    model.learn(total_timesteps=5_000_000, callback=[ch_clb, eval_clb])
     print("Training done")
 
 
@@ -106,7 +116,7 @@ def debug_radius():
 
 
 if __name__ == '__main__':
-    obs_vel_stronger_fast()
+    # obs_vel_stronger_fast()
     # obs_vel_stronger_stones()
     # debug_radius()
-    # obs_vel_stones_relearn()
+    obs_vel_stones_relearn()

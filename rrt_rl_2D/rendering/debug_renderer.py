@@ -19,6 +19,7 @@ class DebugRenderer(BaseRenderer):
         self.display = pygame.display.set_mode((w, h))
         self.cur_scene = pygame.surface.Surface((w, h))
         self._options = DrawOptions(self.cur_scene)
+        self._one_time_canvas = pygame.surface.Surface((w, h))
         self._clock = pygame.time.Clock()
         self._font = self._create_font()
         self._running = True
@@ -32,12 +33,16 @@ class DebugRenderer(BaseRenderer):
     def attach_draw_clb(self, clb):
         self.clbks.append(clb)
 
+    def one_time_draw(self, clb):
+        self._one_time_canvas.fill((255, 255, 255))
+        clb(self._one_time_canvas, self._font)
+
     def _additional_drawings(self):
         for clb in self.clbks:
             clb(self.cur_scene, self._font)
 
     def render(self, simulator: Simulator):
-        self.cur_scene.fill((255, 255, 255))
+        self.cur_scene.blit(self._one_time_canvas, (0, 0))
         self._additional_drawings()
         simulator.draw_on(self._options)
 

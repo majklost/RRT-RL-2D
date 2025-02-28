@@ -3,6 +3,7 @@ import time
 from rrt_rl_2D.simulator.simulator import Simulator
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 from rrt_rl_2D.planners.vec_env_planner import VecEnvPlanner
+from rrt_rl_2D.analytics.standard_analytics import EnvTimes
 
 
 class SimulatorA(Simulator):
@@ -98,13 +99,14 @@ class VecEnvPlannerA(VecEnvPlanner):
 
     @property
     def env_times(self):
-        return {
-            "export": self.env_export_time,
-            "import": self.env_import_time,
-            "reset": self.env_reset_time,
-            "render": self.env_render_time,
-            "step": self.env_step_time
+        ret: EnvTimes = {
+            'export_t': self.env_export_time,
+            'import_t': self.env_import_time,
+            'render_t': self.env_render_time,
+            'reset_t': self.env_reset_time,
+            'step_t': self.env_step_time
         }
+        return ret
 
     @property
     def result_cnts(self):

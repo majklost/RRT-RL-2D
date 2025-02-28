@@ -33,7 +33,7 @@ cfg['seed_plan'] = 66
 cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
-MAP_NAME = 'ThickStones'
+MAP_NAME = 'Empty'
 
 
 class LinearModel(BaseManualModel):
@@ -57,7 +57,10 @@ def distance_fnc(n1, n2):
 storage = storages.GNAT(distance_fnc)
 
 paths = get_run_paths('cable-blend-blend_basic', run_cnt=3)
-maker, maker_name, stuff = BlendMaker.first_try(MAP_NAME, cfg)
+
+maker_factory = BlendMaker(MAP_NAME, cfg)
+
+maker, maker_name, stuff = maker_factory.first_try()
 node_manager = stuff['nm']
 
 model = PPO.load(paths['model_best'], device='cpu')

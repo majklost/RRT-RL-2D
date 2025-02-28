@@ -34,7 +34,6 @@ class VelPathSaver:
         filepath = Path(filepath)
         if len(self.nodes) == 0:
             warnings.warn("No nodes to save")
-            return
         with open(filepath / f"{fname}.rpath", 'wb') as f:
             pickle.dump(self.path, f)
             s = json.dumps(self._create_structure(),

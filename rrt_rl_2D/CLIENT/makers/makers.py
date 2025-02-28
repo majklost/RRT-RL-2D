@@ -1,3 +1,5 @@
+from abc import abstractmethod, ABC
+
 from ...RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
 from ...envs import *
 from ...utils.seed_manager import init_manager
@@ -21,124 +23,204 @@ Function should not be changed after using, some experiments might depend on the
 """
 
 
-def _cfg_map_helper(cfg, map_name):
-    if cfg is None:
-        cfg = STANDARD_CONFIG.copy()
+class _Maker(ABC):
+    def __init__(self, map_name, cfg, render_mode='human', resetable=False, **kwargs):
+        self.map_name = map_name
+        self.cfg = cfg
+        self.was_cfg_none = cfg is None
+        self.render_mode = render_mode
+        self.resetable = resetable
 
-    if map_name is None:
-        map_name = 'AlmostEmpty'
-    cur_map_cls = str2map[map_name]
-    return cur_map_cls, cfg
+    def _manager_helper(self):
+        if self.resetable:
+            return NodeManager(self.cfg)
+        else:
+            return VelNodeManager(self.cfg)
+
+    def _cfg_helper(self):
+        if self.cfg is None:
+            self.cfg = STANDARD_CONFIG.copy()
+        return self.cfg
+
+    def _map_helper(self):
+
+        if self.map_name is None:
+            self.map_name = 'AlmostEmpty'
+        cur_map_cls = str2map[self.map_name]
+        return cur_map_cls
+
+    @abstractmethod
+    def _resetable_class(self):
+        raise NotImplementedError("Depends on the specific maker")
+
+    @abstractmethod
+    def _non_resetable_class(self):
+        raise NotImplementedError("Depends on the specific maker")
+
+    def _resetable_decision(self):
+        if self.resetable:
+            return self._resetable_class()
+        else:
+            return self._non_resetable_class()
+
+    @abstractmethod
+    def first_try(self):
+        raise NotImplementedError("Depends on the specific maker")
 
 
-def _manager_helper(cfg, resetable):
-    if resetable:
-        return NodeManager(cfg)
-    else:
-        return VelNodeManager(cfg)
+class CableRadiusMaker(_Maker):
 
+    def _resetable_class(self):
+        return CableRadiusNearestObsVelR
 
-class CableRadiusMaker:
-    @staticmethod
-    def first_try(map_name='AlmostEmpty', cfg=None, render_mode='human', resetable=False, **kwargs):
-        # kwargs used to be compatible with other makers
-        was_none = cfg is None
+    def _non_resetable_class(self):
+        return CableRadiusNearestObsVelI
 
-        map_cls, cfg = _cfg_map_helper(cfg, map_name)
-        if was_none:
-            cfg['threshold'] = cfg['cable_length'] / 2
-
-        nm = _manager_helper(cfg, resetable)
+    def first_try(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        nm = self._manager_helper()
 
         def raw_maker():
-            cur_map = map_cls(cfg)
-            if resetable:
-                return CableRadiusNearestObsVelR(cur_map, 300, nm, render_mode=render_mode)
-            else:
-                return CableRadiusNearestObsVelI(cur_map, 300, nm, render_mode=render_mode)
+            cur_map = cur_map_cls(self.cfg)
+            if self.was_cfg_none:
+                self.cfg['threshold'] = cur_map.agent.length / 2
+
+            return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(__class__.__name__ + '='), {"nm": nm, "cfg": self.cfg}
 
-    # @staticmethod
-    # def obs_vel_stronger_stones(map_name='StandardStones', cfg=None, render_mode=None, resetable=True):
-    #     return CableRadiusMaker.obs_vel_stronger_fast(map_name, cfg, render_mode, resetable)
-
-
-class DebugMaker:
-    @staticmethod
-    def debug_radius_fast(**kwargs):
+    def analyzable(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        nm = self._manager_helper()
 
         def raw_maker():
-            return CableRadiusEmpty(render_mode='human')
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '='), {"nm": nm, "cfg": self.cfg}
+
+
+class DebugMaker(_Maker):
+    def _resetable_class(self):
+        return CableRadiusEmpty
+
+    def _non_resetable_class(self):
+        return CableRadiusEmpty
+
+    def first_try(self, **kwargs):
+        def raw_maker():
+            return self._resetable_class()(render_mode='human')
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(__class__.__name__ + '='), dict()
 
 
-class BlendMaker:
-    @staticmethod
-    def first_try(map_name, cfg, render_mode='human', resetable=False, **kwargs):
-        was_none = cfg is None
+class BlendMaker(_Maker):
+    def _resetable_class(self):
+        return BlendEnvR
 
-        map_cls, cfg = _cfg_map_helper(cfg, map_name)
-        if was_none:
-            cfg['threshold'] = 20
+    def _non_resetable_class(self):
+        return BlendEnvI
 
+    def _cfg_helper(self):
+        if self.cfg is None:
+            self.cfg = STANDARD_CONFIG.copy()
+            self.cfg['threshold'] = 20
+        return self.cfg
+
+    def first_try(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        nm = ControllableManager(self.cfg)
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg)
+            return self._resetable_decision()(cur_map, 600, nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+
+    def analyzable(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        nm = ControllableManager(self.cfg)
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+
+
+class StandardCableMaker(_Maker):
+    def _resetable_class(self):
+        return CableEnvR
+
+    def _non_resetable_class(self):
+        return CableEnvI
+
+    def first_try(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
         ctrl_idxs = None
-        nm = ControllableManager(cfg, ctrl_idxs=ctrl_idxs)
-        nm.wanted_threshold = cfg['threshold']
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
+        nm.wanted_threshold = self.cfg['threshold']
 
         def raw_maker():
-            cur_map = map_cls(cfg)
-            if resetable:
-                return BlendEnvR(cur_map, 600, nm, render_mode=render_mode)
-            else:
-                return BlendEnvI(cur_map, 600, nm, render_mode=render_mode)
+            cur_map = cur_map_cls(self.cfg)
+            return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(__class__.__name__ + '='), {"nm": nm}
 
-    # @staticmethod
-    # def standard_stones(map_name='StandardStones', cfg=None, render_mode=None, resetable=True):
-    #     return BlendMaker.first_try(map_name, cfg, render_mode, resetable)
-
-
-class StandardCableMaker:
-    @staticmethod
-    def first_try(map_name, cfg, render_mode='human', resetable=False, **kwargs):
-        map_cls, cfg = _cfg_map_helper(cfg, map_name)
+    def analyzable(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
         ctrl_idxs = None
-        nm = ControllableManager(cfg, ctrl_idxs=ctrl_idxs)
-        nm.wanted_threshold = cfg['threshold']
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
+        nm.wanted_threshold = self.cfg['threshold']
 
         def raw_maker():
-            cur_map = map_cls(cfg)
-            if resetable:
-                return CableEnvR(cur_map, 300, nm, render_mode=render_mode)
-            else:
-                return CableEnvI(cur_map, 300, nm, render_mode=render_mode)
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(__class__.__name__ + '='), {"nm": nm}
 
 
-class RectMaker:
-    def first_try(map_name, cfg, render_mode='human', resetable=False, **kwargs):
-        map_cls, cfg = _cfg_map_helper(cfg, map_name)
+class RectMaker(_Maker):
+    def _resetable_class(self):
+        return RectEnvR
 
-        nm = VelNodeManager(cfg)
+    def _non_resetable_class(self):
+        return RectEnvI
+
+    def first_try(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        nm = VelNodeManager(self.cfg)
 
         def raw_maker():
-            cur_map = map_cls(cfg)
-            if resetable:
-                return RectEnvR(cur_map, 1000, nm, render_mode=render_mode)
-            else:
-                return RectEnvI(cur_map, 1000, nm, render_mode=render_mode)
-
+            cur_map = cur_map_cls(self.cfg)
+            return self._resetable_decision()(cur_map, 1000, nm, render_mode=self.render_mode)
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(__class__.__name__ + '='), {"nm": nm}
 
+    def analyzable(self, **kwargs):
+        class Rect(RectangleEmpty, self._map_helper()):
+            pass
 
+        cur_map_cls = Rect
 
+        self.cfg = self._cfg_helper()
+        nm = VelNodeManager(self.cfg)
 
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, 1000, nm, render_mode=self.render_mode)
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
