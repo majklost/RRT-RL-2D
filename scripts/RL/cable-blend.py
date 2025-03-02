@@ -22,8 +22,14 @@ BASE_NAME = 'cable-blend-'
 
 def blend_basic():
     MAP_NAME = 'AlmostEmpty'
-    maker, maker_name, _ = BlendMaker(MAP_NAME,None).first_try()
-    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name)
+    maker, maker_name, _ = BlendMaker(
+        MAP_NAME, STANDARD_CONFIG, resetable=True).first_try()
+    data = {
+        "map_name": MAP_NAME,
+        "cfg": STANDARD_CONFIG
+    }
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+
     env = create_multi_env(
         maker, 32, normalize=True)
     eval_env = create_multi_env(maker, 1, normalize=True)
@@ -85,5 +91,5 @@ def blend_strenght_nonconvex():
 
 
 if __name__ == '__main__':
-    # blend_basic()
-    blend_strenght_nonconvex()
+    blend_basic()
+    # blend_strenght_nonconvex()

@@ -1,5 +1,7 @@
 import pygame
 import pygame.freetype
+
+import time
 import pymunk
 from pathlib import Path
 from pymunk.pygame_util import DrawOptions
@@ -44,8 +46,8 @@ class EnvRenderer(BaseRenderer):
         self.screen.fill((255, 255, 255))
         self._additional_render(self.screen)
         simulator.draw_on(self.options)
-        pygame.display.flip()
         self.clock.tick(self.fps)
+        pygame.display.flip()
 
     def close(self):
         pygame.display.quit()

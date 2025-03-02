@@ -38,7 +38,7 @@ def inner_angles():
     )
 
     print("Training model")
-    model.learn(total_timesteps=4_000_000, callback=[ch_clb, eval_clb])
+    model.learn(total_timesteps=12_000_000, callback=[ch_clb, eval_clb])
     print("Training done")
 
 
@@ -100,6 +100,6 @@ def standard():
 
 
 if __name__ == '__main__':
-    # inner_angles()
+    inner_angles()
     # standard()
-    big_test()
+    # big_test()

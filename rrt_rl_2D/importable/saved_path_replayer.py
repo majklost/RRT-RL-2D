@@ -29,6 +29,11 @@ class SavePathReplayer:
 
     def _replay_from_pickle(self, env):
         path = self.pickled_path
+
+        if len(path.nodes) == 0:
+            warnings.warn("No nodes found in path pickle")
+            return False
+
         for i in range(0, len(path.nodes)):
             node = path.nodes[i]
             assert isinstance(node, VelTreeNode), "Node is not VelTreeNode"
@@ -41,9 +46,15 @@ class SavePathReplayer:
             env.map.sim.step()
 
         env.map.agent.velocity = np.zeros_like(env.map.agent.velocity)
+        return True
 
     def _replay_from_json(self, env):
-        for i in range(0, len(self.fdata['nodes'])):
+        path_length = len(self.fdata['nodes'])
+        if path_length == 0:
+            warnings.warn("No nodes found in path JSON")
+            return False
+
+        for i in range(0, path_length):
             node = self.fdata['nodes'][i]
             for vel in node['velocity']:
                 env.map.sim.step()
@@ -71,6 +82,14 @@ class SavePathReplayer:
                     pygame.draw.circle(screen, color, node, 2)
         self.renderer.one_time_draw(clb)
 
+    def _show_nodes(self, env):
+        while True:
+            self.renderer.render(env.map.sim)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+
     def replay(self):
         self.renderer = DebugRenderer(self.fdata['cfg'])
         self._process_data()
@@ -94,8 +113,12 @@ class SavePathReplayer:
         env.map.sim.attach_renderer(self.renderer)
 
         if self.pickled_path is not None:
-            self._replay_from_pickle(env)
+            ret = self._replay_from_pickle(env)
         else:
             warnings.warn(
                 "No pickled path found, will play the json path instead")
-            self._replay_from_json(env)
+            ret = self._replay_from_json(env)
+
+        if not ret:
+            print("No path found, showing nodes only")
+            self._show_nodes(env)
