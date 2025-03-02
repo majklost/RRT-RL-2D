@@ -16,29 +16,33 @@ class CableEnv(BaseEnv):
         self.observation_space = self._create_observation_space()
         self.action_space = self._create_action_space()
         self.last_start = None
-        self.last_forces = None
+        self.last_actions = None
         self.last_reward = 0
         self.cur_return = 0
         self._reset()
 
     def step(self, action):
-        action = self._process_action(action)
-        self.last_forces = []
+        self.last_actions = []
         if self.goal.controllable_idxs is not None:
             idxs = self.goal.controllable_idxs
         else:
             idxs = range(self.agent_len)
 
         for i in idxs:
-            force = action[i * 2: i * 2 + 2]
-            self.last_forces.append(force)
-            if np.linalg.norm(force) > 1:
-                force /= np.linalg.norm(force)
-            force *= self.scale_factor
-            self.map.agent.bodies[i].apply_force(force)
+            cur_action = action[i * 2: i * 2 + 2]
+            cur_action = self._process_action(cur_action, i)
+            self.last_actions.append(cur_action)
+            self.map.agent.bodies[i].apply_force(cur_action)
 
-        self.last_forces = np.array(self.last_forces)
+        self.last_actions = np.array(self.last_actions)
         return super().step(action)
+
+    def _process_action(self, cur_action, idx):
+        if np.linalg.norm(cur_action) > 1:
+            cur_action /= np.linalg.norm(cur_action)
+        cur_action *= self.scale_factor
+
+        return cur_action
 
     def _create_step_return(self):
         obs = self._get_observation()
@@ -94,9 +98,6 @@ class CableEnv(BaseEnv):
     def _get_info(self):
         return {'goal': self.goal, 'fail': self.fail, 'reached': self.reached}
 
-    def _process_action(self, action):
-        return action
-
     def _set_filter(self):
         for b in self.map.agent.bodies:
             for s in b.shapes:
@@ -124,7 +125,7 @@ class CableEnv(BaseEnv):
             idxs = range(self.agent_len)
 
         for i in idxs:
-            force = self.last_forces[i]
+            force = self.last_actions[i]
             pygame.draw.line(screen, (255, 0, 0), self.map.agent.position[i],
                              self.map.agent.position[i] + force // 2, 2)
 
@@ -146,9 +147,56 @@ class CableEnv(BaseEnv):
         return responses - self.map.agent.position
 
 
+class CablePIDEnv(CableEnv):
+    """
+    Takes the action as the desired velocity of the agent.
+    """
+
+    def _process_action(self, cur_action, idx):
+        if np.linalg.norm(cur_action) > 1:
+            cur_action /= np.linalg.norm(cur_action)
+        cur_action *= self.scale_factor
+
+        vel = self.map.agent.bodies[idx].velocity
+        error = cur_action - vel
+        cur_action = 80 * error
+        return cur_action
+
+
+class CableInnerAngles(CableEnv):
+    def _create_observation_space(self):
+        limit = max(self.map.cfg['width'], self.map.cfg['height'])
+        part1 = np.ones(self.agent_len * 2) * limit
+        part2 = np.ones(self.agent_len - 1) * np.pi
+        low = -np.concatenate((part1, part2))
+        high = np.concatenate((part1, part2))
+        return gym.spaces.Box(low=low, high=high, dtype=np.float64)
+
+    def _get_observation(self):
+        vecs = self._get_target_distance_vecs()
+        angles = self.map.agent.angles_between()
+        return np.concatenate((vecs.flatten(), angles))
+
+
+class CableInnerAnglesR(ResetableEnv, CableInnerAngles):
+    pass
+
+
+class CableInnerAnglesI(ImportableEnv, CableInnerAngles):
+    pass
+
+
 class CableEnvR(ResetableEnv, CableEnv):
     pass
 
 
 class CableEnvI(ImportableEnv, CableEnv):
+    pass
+
+
+class CablePIDEnvR(ResetableEnv, CablePIDEnv):
+    pass
+
+
+class CablePIDEnvI(ImportableEnv, CablePIDEnv):
     pass

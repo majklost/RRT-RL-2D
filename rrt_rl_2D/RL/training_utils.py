@@ -36,13 +36,13 @@ def get_name(base_name):
     return base_name + str(inspect.stack()[1][3])
 
 
-def create_callback_list(paths, eval_env, save_freq=10000) -> tuple:
+def create_callback_list(paths, eval_env, save_freq=20000) -> tuple:
     checkpoint_callback = CallbackList([SaveModelCallback(
         paths['model_last'], save_freq=save_freq)])
     tst = CallbackList([SaveModelCallback(paths['model_best']),
                        SaveNormalizeCallback(paths['norm'], save_freq=save_freq)])
     eval_callback = EvalCallback(
-        eval_env=eval_env, eval_freq=save_freq, callback_on_new_best=tst)
+        eval_env=eval_env, eval_freq=save_freq, callback_on_new_best=tst, n_eval_episodes=15)
     return checkpoint_callback, eval_callback
 
 

@@ -38,6 +38,7 @@ if args.seed == -1:
 else:
     init_manager(args.seed + 10, args.seed + 12)
 
+print(maker_name)
 my_cls = maker_name.split('=')[0]
 method_name = maker_name.split('=')[1]
 
@@ -49,7 +50,7 @@ cfg = experiment['data'].get('cfg', None)
 
 maker_factory = globals()[my_cls](
     render_mode='human', map_name=map_name, cfg=cfg, resetable=True)
-print(maker_factory)
+print(maker_factory.__class__.__name__)
 maker, maker_name, objects = getattr(maker_factory, method_name)()
 
 cfg = objects.get('cfg', STANDARD_CONFIG.copy())

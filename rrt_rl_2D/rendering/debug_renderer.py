@@ -20,6 +20,7 @@ class DebugRenderer(BaseRenderer):
         self.cur_scene = pygame.surface.Surface((w, h))
         self._options = DrawOptions(self.cur_scene)
         self._one_time_canvas = pygame.surface.Surface((w, h))
+        self._one_time_canvas.fill((255, 255, 255))
         self._clock = pygame.time.Clock()
         self._font = self._create_font()
         self._running = True

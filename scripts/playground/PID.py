@@ -3,7 +3,7 @@ from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
 
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
-from rrt_rl_2D.CLIENT.makers import RectMaker
+from rrt_rl_2D.CLIENT.makers.makers import RectPIDMaker
 from rrt_rl_2D.controllers.env_controller import CableEnvController, RectEnvController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 from rrt_rl_2D.nodes import GoalNode
@@ -18,7 +18,7 @@ s['seed_plan'] = 20
 nm = VelNodeManager(cfg=s)
 
 
-maker_factory = RectMaker('Empty', s, resetable=True)
+maker_factory = RectPIDMaker('Empty', s, resetable=True)
 maker, maker_name, _ = maker_factory.first_try()
 
 goal = GoalNode(
@@ -30,10 +30,7 @@ renderer._delayed_init()
 env.env_method("set_renderer", renderer)
 
 cur_map = env.env_method("get_map")[0]
-# env.env_method("import_goal", goal)
-# states = env.env_method("export_state")
-# state = states[0]
-# env.env_method("import_start", state)
+
 
 obs = env.reset()
 
@@ -41,6 +38,7 @@ obs = env.reset()
 for i in range(10000):
 
     action, _ = controller.predict(obs)
+    print(cur_map.agent.velocity)
 
     obs, reward, done, info = env.step(action)
     if done[0]:

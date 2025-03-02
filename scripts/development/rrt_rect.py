@@ -3,7 +3,7 @@ import pygame
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from rrt_rl_2D import *
-from rrt_rl_2D.envs.rect import RectEnvI
+from rrt_rl_2D.CLIENT.makers.makers import RectPIDMaker
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
@@ -18,10 +18,6 @@ cfg['seed_plan'] = 65
 cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 node_manager = node_managers.VelNodeManager(cfg)
-
-
-class MyMap(RectangleEmpty, Empty):
-    pass
 
 
 class LinearModel(BaseManualModel):
@@ -47,19 +43,17 @@ sampler = NDIMSampler((0, 0), (cfg["width"], cfg["height"]))
 
 
 dummy_renderer = NullRenderer()
-cur_map = MyMap(cfg)
 
 
-def maker():
-    return RectEnvI(cur_map, 1000, VelNodeManager(cfg), render_mode='human', renderer=NullRenderer())
-
+maker_factory = RectPIDMaker('NonConvex', cfg, resetable=False)
+maker, maker_name, _ = maker_factory.first_try()
 
 env = make_vec_env(maker, 1)
 overall_goal = GoalNode(
     (cfg['width'] - 200, cfg['height'] // 2), threshold=250)
 s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
     storage, distance_fnc, overall_goal, cfg)
-
+cur_map = env.env_method("get_map")[0]
 planner = VecEnvPlanner(env, LinearModel(), cfg)
 
 start_node = env.env_method("export_state")
@@ -77,6 +71,9 @@ def custom_clb(screen, font):
     s_wrapper.render_clb(screen, font)
 
 
+renderer = EnvRenderer(cfg)
+renderer.register_callback(custom_clb)
+
 for i in range(25000):
     if not s_wrapper.want_next_iter:
         print("Goal reached")
@@ -91,18 +88,16 @@ for i in range(25000):
 
     if response.data.get('timeout', False):
         print("Timeout")
-    # if i == 5500:
-    #     env.env_method("set_renderer", renderer)
+    if i == 1500:
+        env.env_method("set_renderer", renderer)
 
     s_wrapper.save_to_storage(response)
     if i % 100 == 0:
         print("Iteration: ", i)
 
-renderer = EnvRenderer(cfg)
-renderer.register_callback(custom_clb)
-env.env_method("set_renderer", renderer)
+
 env.render()
-input()
+# input()
 
 env.close()
 

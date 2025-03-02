@@ -20,7 +20,7 @@ class BlendEnv(CableEnv):
         return np.concatenate((target_distances.flatten(), obstacle_distances.flatten()))
 
     def step(self, action):
-        coefs = (self._process_action(action) + 1) / 2
+        coefs = (action + 1) / 2
         target_vecs = self._get_target_distance_vecs()
         obstacle_vecs = -self._get_obstacle_distance_vecs()  # repulsive force
 
@@ -62,4 +62,40 @@ class BlendEnvR(ResetableEnv, BlendEnv):
 
 
 class BlendEnvI(ImportableEnv, BlendEnv):
+    pass
+
+
+class BlendStrengthEnv(BlendEnv):
+    """
+    Can set also the strength of the force.
+    """
+
+    def _create_action_space(self):
+        return gym.spaces.Box(low=-1, high=1, shape=(2 * self.agent_len,), dtype=np.float64)
+
+    def step(self, action):
+
+        coefs = (action[:self.agent_len] + 1) / 2
+        strengths = (action[self.agent_len:] + 1) / 2
+        # print(strengths)
+
+        target_vecs = self._get_target_distance_vecs()
+        obstacle_vecs = -self._get_obstacle_distance_vecs()
+
+        target_vecs /= np.linalg.norm(target_vecs, axis=1, keepdims=True)
+        obstacle_vecs /= np.linalg.norm(obstacle_vecs, axis=1, keepdims=True)
+
+        force = coefs[:, None] * target_vecs + \
+            (1 - coefs)[:, None] * obstacle_vecs
+        force *= strengths[:, None] * self.scale_factor
+        self.last_actions = force
+        print(force)
+        return super(BlendEnv, self).step(force.flatten())
+
+
+class BlendStrengthEnvR(ResetableEnv, BlendStrengthEnv):
+    pass
+
+
+class BlendStrengthEnvI(ImportableEnv, BlendStrengthEnv):
     pass

@@ -1,0 +1,74 @@
+"filename", "language", "Python", "JSON", "Shell Script", "comment", "blank", "total"
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/autofetch.sh", "Shell Script", 0, 0, 9, 5, 4, 18
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/conn_tensorboard.sh", "Shell Script", 0, 0, 6, 2, 2, 10
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/fetch_results.sh", "Shell Script", 0, 0, 6, 3, 1, 10
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/loading.sh", "Shell Script", 0, 0, 2, 1, 2, 5
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/on_open.sh", "Shell Script", 0, 0, 13, 11, 5, 29
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/remote_submit.sh", "Shell Script", 0, 0, 3, 0, 1, 4
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/submit.sh", "Shell Script", 0, 0, 4, 3, 4, 11
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/bash_scripts/to_remote.sh", "Shell Script", 0, 0, 9, 3, 2, 14
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/CLIENT/__init__.py", "Python", 8, 0, 0, 0, 1, 9
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/CLIENT/analyzable/analyzable.py", "Python", 100, 0, 0, 0, 22, 122
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/CLIENT/makers/__init__.py", "Python", 3, 0, 0, 2, 3, 8
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/CLIENT/makers/makers.py", "Python", 196, 0, 0, 0, 71, 267
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/RL/__init__.py", "Python", 2, 0, 0, 0, 1, 3
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/RL/players.py", "Python", 45, 0, 0, 3, 8, 56
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/RL/training_utils.py", "Python", 116, 0, 0, 1, 28, 145
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/__init__.py", "Python", 3, 0, 0, 0, 0, 3
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/analytics/__init__.py", "Python", 1, 0, 0, 0, 1, 2
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/analytics/analytics_formatter.py", "Python", 0, 0, 0, 0, -1, -1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/analytics/standard_analytics.py", "Python", 38, 0, 0, 0, 7, 45
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/assets/cable.py", "Python", 4, 0, 0, 0, 1, 5
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/__init__.py", "Python", 4, 0, 0, 0, 1, 5
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/blend_env.py", "Python", 45, 0, 0, 1, 20, 66
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/cable_env.py", "Python", 138, 0, 0, 0, 42, 180
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/cable_radius.py", "Python", -20, 0, 0, 1, 4, -15
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/debug_radius.py", "Python", 131, 0, 0, 3, 36, 170
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/dodge_env.py", "Python", 0, 0, 0, 0, 1, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/rect.py", "Python", 28, 0, 0, 0, 8, 36
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/envs/rrt_env.py", "Python", -5, 0, 0, 0, 4, -1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/export/__init__.py", "Python", 2, 0, 0, 0, 1, 3
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/export/vel_path_replayer.py", "Python", 4, 0, 0, 0, -1, 3
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/export/vel_path_saver.py", "Python", 55, 0, 0, 0, 11, 66
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/import/policy_loader.py", "Python", -5, 0, 0, 0, -1, -6
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/importable/__init__.py", "Python", 1, 0, 0, 0, 1, 2
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/importable/saved_path_replayer.py", "Python", 83, 0, 0, 4, 15, 102
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/maps/__init__.py", "Python", 10, 0, 0, 0, 2, 12
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/node_managers/__init__.py", "Python", 1, 0, 0, 0, 0, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/node_managers/controllable_manager.py", "Python", 10, 0, 0, 0, 4, 14
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/node_managers/node_manager.py", "Python", 1, 0, 0, 0, 0, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/node_managers/vel_node_manager.py", "Python", 1, 0, 0, 0, 0, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/nodes/goal_node.py", "Python", 1, 0, 0, 1, 0, 2
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/nodes/tree_node.py", "Python", 1, 0, 0, 0, 0, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/planners/vec_env_planner.py", "Python", 16, 0, 0, 0, 8, 24
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/rendering/__init__.py", "Python", 5, 0, 0, 0, 2, 7
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/rendering/debug_renderer.py", "Python", 5, 0, 0, 0, 1, 6
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/rendering/env_renderer.py", "Python", 6, 0, 0, 0, -1, 5
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/simulator/simulator.py", "Python", 7, 0, 0, 0, 2, 9
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/simulator/standard_config.py", "Python", 0, 0, 0, 1, 0, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/rrt_rl_2D/utils/save_manager.py", "Python", 352, 0, 0, 4, 82, 438
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/RL/cable-PID.py", "Python", 32, 0, 0, 0, 10, 42
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/RL/cable-blend.py", "Python", 29, 0, 0, 0, 10, 39
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/RL/cable-radius.py", "Python", 94, 0, 0, 3, 26, 123
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/RL/init_hyperopt.py", "Python", 0, 0, 0, 0, 1, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/RL/play_experiment.py", "Python", 51, 0, 0, 0, 15, 66
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/debug/__init__.py", "Python", 0, 0, 0, 0, 1, 1
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/debug/outer_model.py", "Python", 101, 0, 0, 13, 44, 158
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/debug/t1.py", "Python", 3, 0, 0, 0, 1, 4
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/debug/t2.py", "Python", 12, 0, 0, 0, 5, 17
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/cablePID.py", "Python", 21, 0, 0, 1, 5, 27
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/cable_resetable.py", "Python", 18, 0, 0, 0, 10, 28
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/dirty.ipynb", "JSON", 0, 365, 0, 0, 1, 366
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/playground.py", "Python", 11, 0, 0, 0, 8, 19
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/rect_env.py", "Python", -3, 0, 0, 5, -6, -4
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/rrt_rect.py", "Python", -2, 0, 0, -1, -2, -5
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/test_env.py", "Python", -3, 0, 0, 5, 1, 3
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/development/test_maps.py", "Python", 5, 0, 0, 0, 0, 5
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/multitool.ipynb", "JSON", 0, 24, 0, 0, 1, 25
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/playground/PID.py", "Python", 33, 0, 0, 2, 15, 50
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/playground/PID2.py", "Python", 35, 0, 0, 6, 16, 57
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/quantitative/qunatitative.py", "Python", 244, 0, 0, 1, 47, 292
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/rrt_blender.py", "Python", 98, 0, 0, 6, 39, 143
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/rrt_cable.py", "Python", 7, 0, 0, 6, -1, 12
+"/home/michal/Documents/Skola/bakalarka/RRT-RL-2D/scripts/rrt_cable_radius.py", "Python", 81, 0, 0, 3, 29, 113
+"Total", "-", 2260, 389, 52, 99, 681, 3481

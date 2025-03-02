@@ -109,3 +109,39 @@ class RectEnvI(ImportableEnv, RectEnv):
 
 class RectEnvR(ResetableEnv, RectEnv):
     pass
+
+
+class RectPID(RectEnv):
+    def __init__(self, cur_map, scale_factor, node_factory, render_mode=None):
+        super().__init__(cur_map, scale_factor, node_factory, render_mode)
+        self.kp = 100
+        self.ki = 0
+        self.kd = 0
+        self.previous_error = 0
+        self.integral = 0
+
+    def step(self, action):
+        if np.linalg.norm(action) > 1:
+            action /= np.linalg.norm(action)
+        action *= self.scale_factor
+        force = self._pid(action)
+        self.map.agent.bodies[0].apply_force(force)
+        self._last_action = force
+        return super().step(action)
+
+    def _pid(self, action):
+        error = action - self.map.agent.velocity
+        dt = 1 / self.map.cfg['fps']
+        self.integral += error * dt
+        derivative = (error - self.previous_error) / dt
+        output = self.kp * error + self.ki * self.integral + self.kd * derivative
+        self.previous_error = error
+        return output
+
+
+class RectPIDR(ResetableEnv, RectPID):
+    pass
+
+
+class RectPIDI(ImportableEnv, RectPID):
+    pass
