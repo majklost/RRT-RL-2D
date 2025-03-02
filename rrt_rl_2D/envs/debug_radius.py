@@ -98,11 +98,11 @@ class CableRadiusEmpty(gym.Env):
     def _calc_potential(self, distances):
         return -np.sum(np.linalg.norm(distances, axis=1), where=np.linalg.norm(distances, axis=1) > self.radius)
 
-    def _process_action(self, action):
+    def _process_actions(self, action):
         return action
 
     def step(self, action):
-        action = self._process_action(action)
+        action = self._process_actions(action)
         self.last_action = action
         for i in range(len(self.controllable_idxs)):
             idx = self.controllable_idxs[i]

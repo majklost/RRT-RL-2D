@@ -139,3 +139,9 @@ class Cable(MultiBody):
         sin = np.sin(orientations)
         rot_matrices = np.array([[cos, -sin], [sin, cos]])
         return np.transpose(rot_matrices, (2, 0, 1))
+
+    def angles_between(self):
+        # returns angles between segments
+        orientations = self.orientation
+        diffs = orientations[1:] - orientations[:-1]
+        return diffs
