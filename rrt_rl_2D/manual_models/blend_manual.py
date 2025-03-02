@@ -13,7 +13,10 @@ class BlendManualModel(BaseManualModel):
         target_vecs = obs[:self.segnum * 2].reshape(self.segnum, 2)
         obstacle_vecs = obs[self.segnum * 2:].reshape(self.segnum, 2)
         obstacle_norms = np.linalg.norm(obstacle_vecs, axis=1)
+        target_norms = np.linalg.norm(target_vecs, axis=1)
 
         obstacle_weights = 1 / (1 + np.exp(obstacle_norms - SAFETY_THRESHOLD))
         target_weights = 2 * (1 - obstacle_weights) - 1
-        return [target_weights], None
+        # return [target_weights], None
+        target_weights = target_norms / (target_norms + obstacle_norms)
+        return [2 * target_weights - 1], None
