@@ -22,7 +22,7 @@ class CableEnv(BaseEnv):
         self._reset()
 
     def step(self, action):
-        self.last_actions = []
+        self.last_actions = np.zeros((self.agent_len, 2))
         if self.goal.controllable_idxs is not None:
             idxs = self.goal.controllable_idxs
         else:
@@ -31,7 +31,7 @@ class CableEnv(BaseEnv):
         for i in idxs:
             cur_action = action[i * 2: i * 2 + 2]
             cur_action = self._process_action(cur_action, i)
-            self.last_actions.append(cur_action)
+            self.last_actions[i, :] = cur_action
             self.map.agent.bodies[i].apply_force(cur_action)
 
         self.last_actions = np.array(self.last_actions)
@@ -176,6 +176,65 @@ class CableInnerAngles(CableEnv):
         vecs = self._get_target_distance_vecs()
         angles = self.map.agent.angles_between()
         return np.concatenate((vecs.flatten(), angles))
+
+
+class CableBigTest(CableEnv):
+    def _create_observation_space(self):
+        # Calculate appropriate dimensions and limits
+        # [positions, segment vectors, sin/cos angles, goal vectors, obstacle distances]
+        total_dims = 4 * 2 * self.agent_len - 2
+        return gym.spaces.Box(low=-np.inf, high=np.inf, shape=(total_dims,), dtype=np.float64)
+
+    def _get_observation(self):
+
+        # Segment vectors
+        segment_vecs_diffs = np.roll(
+            self.map.agent.position, -1, axis=0) - self.map.agent.position
+
+        # Angles with sin/cos representation
+        angles = self.map.agent.angles_between()
+        angle_features = np.array([[np.sin(a), np.cos(a)]
+                                   for a in angles]).flatten()
+
+        # Goal information
+        goal_vec = self.goal.goal - self.map.agent.position
+
+        return np.concatenate((segment_vecs_diffs.flatten(), angle_features.flatten(), goal_vec.flatten(), goal_vec.flatten()))
+
+    def _get_reward(self):
+        # Handle collisions
+        if self.map.agent.outer_collision_idxs:
+            return -10, True  # Smaller penalty
+
+        distances = self._get_target_distance_vecs()
+
+        # Success condition
+        if np.all(np.linalg.norm(distances, axis=1) < self.goal.threshold):
+            return 10, True  # Smaller positive reward
+
+        # Calculate potential-based reward
+        potential = self._calc_potential(distances)
+        if self.last_target_potential == 0:
+            self.last_target_potential = potential
+
+        # Potential-based reward without constant penalty
+        reward = 0.5 * (potential - self.last_target_potential)
+
+        # Add configuration reward (encourage natural cable shapes)
+        angles = self.map.agent.angles_between()
+        # Reward straighter configurations
+        angle_reward = 0.1 * np.sum(np.cos(angles))
+        reward += angle_reward
+
+        return reward, False
+
+
+class CableBigTestR(ResetableEnv, CableBigTest):
+    pass
+
+
+class CableBigTestI(ImportableEnv, CableBigTest):
+    pass
 
 
 class CableInnerAnglesR(ResetableEnv, CableInnerAngles):

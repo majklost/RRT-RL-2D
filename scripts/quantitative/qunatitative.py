@@ -180,6 +180,64 @@ def rect_fnc(map_name, cfg: StandardConfig, **kwargs):
     return ret
 
 
+def one_controllable(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    class LinearModel(BaseManualModel):
+        def predict(self, obs, **kwargs):
+            return obs, None
+    ctrl_idxs = kwargs.get('ctrl_idxs', None)
+    if ctrl_idxs is not None:
+        raise NotImplementedError("Controlled nodes not implemented")
+
+    maker_factory = StandardCableMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.one_controllable_analyzable()
+    node_manager = stuff['nm']
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": LinearModel(),
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def two_controllable(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    class LinearModel(BaseManualModel):
+        def predict(self, obs, **kwargs):
+            return obs, None
+    ctrl_idxs = kwargs.get('ctrl_idxs', None)
+    if ctrl_idxs is not None:
+        raise NotImplementedError("Controlled nodes not implemented")
+
+    maker_factory = StandardCableMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.two_controllable_analyzable()
+    node_manager = stuff['nm']
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": LinearModel(),
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
 def main(cur_args):
     cfg = create_cfg()
     cfg["seed_plan"] = cur_args.seed
@@ -266,8 +324,8 @@ TXT2MODEL = {
     "RadiusDummy": radius_dummy,
     "RadiusRL": radius_rl,
     "Rect": rect_fnc,
-
-
+    "OneControl": one_controllable,
+    "TwoControl": two_controllable,
 }
 
 

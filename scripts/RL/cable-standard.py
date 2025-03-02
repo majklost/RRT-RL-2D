@@ -3,7 +3,7 @@ from stable_baselines3 import PPO
 from torch import nn
 
 from rrt_rl_2D import *
-from rrt_rl_2D.CLIENT.makers import StandardCableMaker, CableInnerAnglesMaker
+from rrt_rl_2D.CLIENT.makers import StandardCableMaker, CableInnerAnglesMaker, CableBigTestMaker
 from rrt_rl_2D.utils.save_manager import load_manager, get_paths, get_run_paths
 from rrt_rl_2D.RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
 
@@ -42,6 +42,35 @@ def inner_angles():
     print("Training done")
 
 
+def big_test():
+    cfg = STANDARD_CONFIG.copy()
+    MAP_NAME = 'Empty'
+    cfg['threshold'] = 20
+    maker, maker_name, objects = CableBigTestMaker(
+        MAP_NAME, cfg=cfg, resetable=True).first_try()
+    data = {
+        "map_name": MAP_NAME,
+        "cfg": cfg
+    }
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+    env = create_multi_env(
+        maker, 32, normalize=True)
+    eval_env = create_multi_env(maker, 1, normalize=True)
+
+    ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
+    model = PPO("MlpPolicy", env, verbose=0, tensorboard_log=paths['tb'], device='cpu',
+                batch_size=64, gamma=0.999, learning_rate=1.434646320811716e-04, clip_range=0.4, n_epochs=4, gae_lambda=0.98,
+                policy_kwargs=dict(
+        net_arch=dict(pi=[256, 256, 128], vf=[256, 256, 128]),
+        activation_fn=nn.Tanh,
+    ),
+    )
+
+    print("Training model")
+    model.learn(total_timesteps=10_000_000, callback=[ch_clb, eval_clb])
+    print("Training done")
+
+
 def standard():
     cfg = STANDARD_CONFIG.copy()
     MAP_NAME = 'Empty'
@@ -72,4 +101,5 @@ def standard():
 
 if __name__ == '__main__':
     # inner_angles()
-    standard()
+    # standard()
+    big_test()

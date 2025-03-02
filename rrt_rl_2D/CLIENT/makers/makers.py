@@ -10,7 +10,7 @@ from ...envs.debug_radius import CableRadiusEmpty
 from ...envs.blend_env import BlendEnvR, BlendEnvI, BlendStrengthEnvI, BlendStrengthEnvR
 from ...envs.rect import RectPIDR, RectPIDI
 from ...envs.cable_env import CableInnerAnglesI, CableInnerAnglesR
-from ...envs.cable_env import CablePIDEnvI, CablePIDEnvR
+from ...envs.cable_env import CablePIDEnvI, CablePIDEnvR, CableBigTestI, CableBigTestR
 from ...envs.cable_env import CableEnvR, CableEnvI
 from ..analyzable.analyzable import SimulatorA
 """
@@ -92,7 +92,7 @@ class CableRadiusMaker(_Maker):
             return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm, "cfg": self.cfg}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm, "cfg": self.cfg}
 
     def analyzable(self, **kwargs):
         cur_map_cls = self._map_helper()
@@ -104,7 +104,7 @@ class CableRadiusMaker(_Maker):
             return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm, "cfg": self.cfg}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm, "cfg": self.cfg}
 
 
 class DebugMaker(_Maker):
@@ -118,7 +118,7 @@ class DebugMaker(_Maker):
         def raw_maker():
             return self._resetable_class()(render_mode='human')
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), dict()
+        return maker, get_name(type(self).__name__ + '='), dict()
 
 
 class BlendMaker(_Maker):
@@ -144,7 +144,7 @@ class BlendMaker(_Maker):
             return self._resetable_decision()(cur_map, 600, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
     def analyzable(self, **kwargs):
         cur_map_cls = self._map_helper()
@@ -156,7 +156,7 @@ class BlendMaker(_Maker):
             return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
 
 class BlendStrengthMaker(BlendMaker):
@@ -176,7 +176,7 @@ class BlendStrengthMaker(BlendMaker):
             return self._resetable_decision()(cur_map, 600, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
 
 class StandardCableMaker(_Maker):
@@ -198,7 +198,35 @@ class StandardCableMaker(_Maker):
             return self._resetable_decision()(cur_map, movement_force, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+    def one_controllable_analyzable(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        ctrl_idxs = [0]
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
+        nm.wanted_threshold = self.cfg['threshold']
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, 2000, nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+    def two_controllable_analyzable(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        ctrl_idxs = [0, self.cfg['seg_num'] - 1]
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
+        nm.wanted_threshold = self.cfg['threshold']
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, 1000, nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
     def analyzable(self, **kwargs):
         cur_map_cls = self._map_helper()
@@ -212,7 +240,18 @@ class StandardCableMaker(_Maker):
             return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+
+class CableBigTestMaker(StandardCableMaker):
+    def _resetable_class(self):
+        return CableBigTestR
+
+    def _non_resetable_class(self):
+        return CableBigTestI
+
+    def first_try(self, **kwargs):
+        return super().first_try(movement_force=300, **kwargs)
 
 
 class CableInnerAnglesMaker(StandardCableMaker):
@@ -254,7 +293,7 @@ class RectMaker(_Maker):
             cur_map = cur_map_cls(self.cfg)
             return self._resetable_decision()(cur_map, 1000, nm, render_mode=self.render_mode)
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
     def analyzable(self, **kwargs):
         class Rect(RectangleEmpty, self._map_helper()):
@@ -269,7 +308,7 @@ class RectMaker(_Maker):
             cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
             return self._resetable_decision()(cur_map, 1000, nm, render_mode=self.render_mode)
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
 
 class RectPIDMaker(_Maker):
@@ -292,4 +331,4 @@ class RectPIDMaker(_Maker):
             cur_map = cur_map_cls(self.cfg)
             return self._resetable_decision()(cur_map, 80, nm, render_mode=self.render_mode)
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(__class__.__name__ + '='), {"nm": nm}
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}

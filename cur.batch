@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-#SBATCH --partition=cpufast
+#SBATCH --partition=cpu
 #SBATCH --time=3:00:00
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=1
 #SBATCH --error=../../submitted%j.err
@@ -8,7 +8,7 @@
 cd /mnt/personal/mrkosmic/synced/RRT
 ml Python/3.12
 
-python ./scripts/RL/cable-blend.py
+# python ./scripts/RL/cable-blend.py
 # python ./scripts/RL/cable-radius.py
 # python ./scripts/RL/cable-PID.py
-# python ./scripts/RL/cable-standard.py
+python ./scripts/RL/cable-standard.py

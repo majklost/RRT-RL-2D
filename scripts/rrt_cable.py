@@ -50,6 +50,7 @@ def distance_fnc(n1, n2):
 
 maker_factory = StandardCableMaker(MAP_NAME, cfg)
 maker, maker_name, objects = maker_factory.first_try()
+# maker, maker_name, objects = maker_factory.one_controllable_analyzable()
 node_manager = objects['nm']
 
 env = make_vec_env(maker, 1)
@@ -87,7 +88,7 @@ def custom_clb(screen, font):
 
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
-# env.env_method("set_renderer", renderer)
+env.env_method("set_renderer", renderer)
 try:
     for i in range(20000):
         if not s_wrapper.want_next_iter:
