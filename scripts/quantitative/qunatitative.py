@@ -27,7 +27,7 @@ TIMEOUT = 2 * 3600
 
 class Returns(TypedDict):
     env: VecEnv
-    model: PPO
+    model: PPO | BaseManualModel
     sampler: BezierSampler
     node_manager: node_managers.NodeManager
     cur_map: Empty
@@ -233,7 +233,8 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
         "node_manager": node_manager,
         "cur_map": cur_map,
         "cfg": cfg,
-        "maker_name": maker_name
+        "maker_name": maker_name,
+
     }
     return ret
 

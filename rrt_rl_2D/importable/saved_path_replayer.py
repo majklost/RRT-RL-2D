@@ -67,6 +67,13 @@ class SavePathReplayer:
             env.map.sim.step()
 
     def _process_data(self):
+
+        try:
+            self.fdata['data']['nodes']
+        except KeyError:
+            warnings.warn("No RRT nodes found in data")
+            return
+
         print("PROCESS DATA")
         print(len(self.fdata['data']['nodes']))
 
@@ -82,7 +89,28 @@ class SavePathReplayer:
                     pygame.draw.circle(screen, color, node, 2)
         self.renderer.one_time_draw(clb)
 
-    def _show_nodes(self, env):
+    def _show_path_nodes(self):
+        def clb(screen, font):
+            try:
+                nodes = self.fdata['nodes']
+                for i in range(len(nodes)):
+                    node = nodes[i]
+                    pos = np.array(node['agent_pos'])
+                    if len(pos.shape) == 1:
+                        pygame.draw.circle(screen, (0, 0, 255), pos, 2)
+                        if i != 0:
+                            pygame.draw.line(screen, (0, 0, 255),
+                                             nodes[i - 1]['agent_pos'], pos)
+                    else:
+                        for point in pos:
+                            pygame.draw.circle(screen, (0, 0, 255), point, 2)
+
+            except KeyError:
+                warnings.warn("No nodes found in JSON path")
+                return
+        self.renderer.one_time_draw(clb)
+
+    def _show_rrt_nodes(self, env):
         while True:
             self.renderer.render(env.map.sim)
             for event in pygame.event.get():
@@ -93,6 +121,7 @@ class SavePathReplayer:
     def replay(self):
         self.renderer = DebugRenderer(self.fdata['cfg'])
         self._process_data()
+        self._show_path_nodes()
         maker_name = self.fdata['maker_name']
         my_cls = maker_name.split('=')[0]
         method_name = maker_name.split('=')[1]
@@ -121,4 +150,4 @@ class SavePathReplayer:
 
         if not ret:
             print("No path found, showing nodes only")
-            self._show_nodes(env)
+            self._show_rrt_nodes(env)

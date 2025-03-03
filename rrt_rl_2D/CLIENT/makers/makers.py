@@ -280,7 +280,7 @@ class RectMaker(_Maker):
     def _non_resetable_class(self):
         return RectEnvI
 
-    def first_try(self, **kwargs):
+    def first_try(self, force_strength=1000, **kwargs):
         class Rect(RectangleEmpty, self._map_helper()):
             pass
 
@@ -291,7 +291,7 @@ class RectMaker(_Maker):
 
         def raw_maker():
             cur_map = cur_map_cls(self.cfg)
-            return self._resetable_decision()(cur_map, 1000, nm, render_mode=self.render_mode)
+            return self._resetable_decision()(cur_map, force_strength, nm, render_mode=self.render_mode)
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 

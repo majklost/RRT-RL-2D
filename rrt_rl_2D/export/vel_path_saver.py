@@ -7,6 +7,7 @@ import datetime
 import pickle
 
 from ..nodes import VelTreeNode
+from ..simulator.standard_config import StandardConfig
 
 
 def default(obj):
@@ -24,7 +25,9 @@ class VelPathSaver:
         self.maker_name = maker_name
         self.path = path
         self.data = data
-        self.cfg = cfg
+        self.cfg = cfg  # type:StandardConfig
+        assert cfg['seed_env'] is not None, "Seed env is None, replay will not match the path"
+
         self.map_name = map_name
         self.creation_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.script_name = script_name

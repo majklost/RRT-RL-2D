@@ -35,7 +35,7 @@ class DebugRenderer(BaseRenderer):
         self.clbks.append(clb)
 
     def one_time_draw(self, clb):
-        self._one_time_canvas.fill((255, 255, 255))
+        # self._one_time_canvas.fill((255, 255, 255))
         clb(self._one_time_canvas, self._font)
 
     def _additional_drawings(self):
