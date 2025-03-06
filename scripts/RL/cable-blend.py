@@ -38,7 +38,7 @@ def blend_basic():
     model = PPO("MlpPolicy", env, verbose=0,
                 tensorboard_log=paths['tb'], device='cpu')
     print("Training model")
-    model.learn(total_timesteps=4000000, callback=[ch_clb, eval_clb])
+    model.learn(total_timesteps=1000, callback=[ch_clb, eval_clb])
     print("Training done")
 
 

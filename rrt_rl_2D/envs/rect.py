@@ -139,6 +139,24 @@ class RectPID(RectEnv):
         return output
 
 
+class RectVelEnv(RectEnv):
+    def step(self, action):
+        if np.linalg.norm(action) > 1:
+            action /= np.linalg.norm(action)
+        action *= self.scale_factor
+        self.map.agent.velocity = action
+        self._last_action = action
+        return super().step(action)
+
+
+class RectVelEnvR(ResetableEnv, RectVelEnv):
+    pass
+
+
+class RectVelEnvI(ImportableEnv, RectVelEnv):
+    pass
+
+
 class RectPIDR(ResetableEnv, RectPID):
     pass
 
