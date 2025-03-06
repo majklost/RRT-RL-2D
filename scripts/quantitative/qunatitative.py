@@ -18,8 +18,10 @@ from rrt_rl_2D import *
 from rrt_rl_2D.envs.rrt_env import BaseEnv
 from rrt_rl_2D.utils.save_manager import load_manager, get_run_paths
 from rrt_rl_2D.RL import *
+from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.manual_models import BaseManualModel
+from rrt_rl_2D.manual_models.blend_manual import BlendManualModel
 
 MAX_STEPS_NUM = 400_000
 TIMEOUT = 2 * 3600
@@ -57,14 +59,18 @@ def distance_fnc(n1, n2):
     return np.linalg.norm(n1.agent_pos - n2.agent_pos)
 
 
-def blender(map_name, cfg: StandardConfig, **kwargs):
+def blender_unlearn(map_name, cfg: StandardConfig, **kwargs):
+    return blender(map_name, cfg, run_number=8, model_wieghts="model_last", **kwargs)
+
+
+def blender(map_name, cfg: StandardConfig, run_number=3, model_wieghts="model_best", **kwargs):
     cfg['threshold'] = 20
-    paths = get_run_paths('cable-blend-blend_basic', run_cnt=3)
+    paths = get_run_paths('cable-blend-blend_basic', run_cnt=run_number)
 
     maker_factory = BlendMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.analyzable()
     node_manager = stuff['nm']
-    model = PPO.load(paths['model_best'], device='cpu')
+    model = PPO.load(paths[model_wieghts], device='cpu')
     env = create_multi_env(maker, 1, normalize_path=paths['norm'])
     cur_map = env.env_method("get_map")[0]
     sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
@@ -101,6 +107,31 @@ def cable(map_name, cfg: StandardConfig, **kwargs):
     ret: Returns = {
         "env": env,
         "model": LinearModel(),
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def cable_RL(map_name, cfg: StandardConfig, **kwargs):
+    maker_factory = LastEnvMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.analyzable()
+    node_manager = stuff['nm']
+
+    rpaths = get_run_paths('cable-last-last', run_cnt=2)
+    model = PPO.load(rpaths['model_last'], device='cpu')
+
+    env = create_multi_env(maker, 1, normalize=True,
+                           normalize_path=rpaths['norm'])
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
         "sampler": sampler,
         "node_manager": node_manager,
         "cur_map": cur_map,
@@ -239,9 +270,33 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
     return ret
 
 
+def shit(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = BlendMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.analyzable()
+    node_manager = stuff['nm']
+    model = BlendManualModel(cfg['seg_num'])
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
 def main(cur_args):
     cfg = create_cfg()
     cfg["seed_plan"] = cur_args.seed
+
     init_manager(cfg['seed_env'], cfg['seed_plan'])
     returns: Returns = TXT2MODEL[cur_args.mode](cur_args.map_name, cfg)
 
@@ -265,6 +320,11 @@ def main(cur_args):
     reachead_goal = False
 
     start_t = time.perf_counter()
+
+    if cur_args.render:
+        renderer = EnvRenderer(cfg)
+        env.env_method("set_renderer", renderer)
+
     while planner.step_cnt < MAX_STEPS_NUM:
         if not s_wrapper.want_next_iter:
             reachead_goal = True
@@ -286,6 +346,7 @@ def main(cur_args):
             print("steps sum: ", planner.step_cnt)
 
         if iter_cnt % 1000 == 0:
+
             if time.perf_counter() - start_t > TIMEOUT:
                 print("Timeout")
                 break
@@ -309,7 +370,7 @@ def main(cur_args):
         'timeout_cnt': result_cnts['timeouts'],
         'reached_cnt': result_cnts['reached'],
         'steps_sum': planner.step_cnt,
-        'sim_time': returns["cur_map"].sim.step_time,
+        'sim_time': returns["cur_map"].sim.step_time if hasattr(returns["cur_map"].sim, "step_time") else 0,
         'storage_time': storage_time,
         'node_cnt': planner.node_cnt,
         'env_times': planner.env_times,
@@ -327,6 +388,9 @@ TXT2MODEL = {
     "Rect": rect_fnc,
     "OneControl": one_controllable,
     "TwoControl": two_controllable,
+    "BlendUnlearn": blender_unlearn,
+    "CableRL": cable_RL,
+    "Shit": shit
 }
 
 
@@ -346,5 +410,6 @@ if __name__ == "__main__":
     parser.add_argument("analytics_path", type=str)
     parser.add_argument("--name", type=str, default="PlannedPath")
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--render", action="store_true")
     args = parser.parse_args()
     main(args)

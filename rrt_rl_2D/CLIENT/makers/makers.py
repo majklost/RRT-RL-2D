@@ -8,11 +8,13 @@ from ...maps import str2map, RectangleEmpty
 from ...node_managers import *
 from ...envs.debug_radius import CableRadiusEmpty
 from ...envs.blend_env import BlendEnvR, BlendEnvI, BlendStrengthEnvI, BlendStrengthEnvR
-from ...envs.rect import RectPIDR, RectPIDI
+from ...envs.rect import RectPIDR, RectPIDI, RectVelEnvI, RectVelEnvR
 from ...envs.cable_env import CableInnerAnglesI, CableInnerAnglesR
 from ...envs.cable_env import CablePIDEnvI, CablePIDEnvR, CableBigTestI, CableBigTestR
 from ...envs.cable_env import CableEnvR, CableEnvI
+from ...envs.last_env import LastEnvR, LastEnvI
 from ..analyzable.analyzable import SimulatorA
+from ...simulator.simulator import Simulator
 """
 Here you can build your environments so they can be easily imported everywhere
 (for learning, for rrt planning, for saved path replaying, for replaying learned RL models... )
@@ -138,6 +140,19 @@ class BlendMaker(_Maker):
         cur_map_cls = self._map_helper()
         self.cfg = self._cfg_helper()
         nm = ControllableManager(self.cfg)
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg)
+            return self._resetable_decision()(cur_map, 600, nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+    def two_controllable(self, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        ctrl_idxs = [0, self.cfg['seg_num'] - 1]
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
 
         def raw_maker():
             cur_map = cur_map_cls(self.cfg)
@@ -332,3 +347,39 @@ class RectPIDMaker(_Maker):
             return self._resetable_decision()(cur_map, 80, nm, render_mode=self.render_mode)
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+
+class RectVelMaker(RectMaker):
+    def _resetable_class(self):
+        return RectVelEnvR
+
+    def _non_resetable_class(self):
+        return RectVelEnvI
+
+    def first_try(self, max_velocity=1000, **kwargs):
+        return super().first_try(force_strength=max_velocity, **kwargs)
+
+
+class LastEnvMaker(_Maker):
+    def _resetable_class(self):
+        return LastEnvR
+
+    def _non_resetable_class(self):
+        return LastEnvI
+
+    def first_try(self, movement_force=450, sim_cls=Simulator, **kwargs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+        ctrl_idxs = None
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
+        nm.wanted_threshold = self.cfg['threshold']
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg, sim_cls=sim_cls)
+            return self._resetable_decision()(cur_map, movement_force, nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+    def analyzable(self, **kwargs):
+        return self.first_try(sim_cls=SimulatorA, **kwargs)

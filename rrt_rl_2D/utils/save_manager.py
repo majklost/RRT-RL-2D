@@ -161,7 +161,7 @@ class _SaveManager:
             experiment = self.experiments[experiment_name]
         except KeyError:
             warnings.warn(
-                f"{experiment_name} not found in the experiments, current experiments are {list(self.experiments.keys())}")
+                f"{experiment_name} not found in the experiments, current experiments are:\n{'\n'.join(self.experiments.keys())}")
             experiment = _Experiment()
         experiment.from_json(self._get_json_path(experiment_name))
 
@@ -179,7 +179,7 @@ class _SaveManager:
             print(experiment)
         except KeyError:
             raise ValueError(
-                f"{experiment_name} not found in the experiments, current experiments are {list(self.experiments.keys())}")
+                f"{experiment_name} not found in the experiments, current experiments are:\n{'\n'.join(self.experiments.keys())}")
 
         if run_cnt == -1:
             run_cnt = experiment.run_cnt
@@ -286,7 +286,7 @@ class _SaveManager:
             del self.experiments[experiment_name]
         except KeyError:
             print(
-                f"{experiment_name} not found in the experiments, current experiments are {list(self.experiments.keys())}")
+                f"{experiment_name} not found in the experiments, current experiments are:\n{'\n'.join(self.experiments.keys())}")
         self.backup()
 
     def print_experiment(self, experiment_name: str):
@@ -297,7 +297,7 @@ class _SaveManager:
             print(self.experiments[experiment_name])
         except KeyError:
             print(
-                f"{experiment_name} not found in the experiments, current experiments are {list(self.experiments.keys())}")
+                f"{experiment_name} not found in the experiments, current experiments are:\n{'\n'.join(self.experiments.keys())}")
 
     def __str__(self):
         return f"SaveManager(tb_log_dir={self.tb_log_dir}, model_dir={self.model_dir}, vec_norm_dir={self.vec_norm_dir})"
