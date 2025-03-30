@@ -9,12 +9,13 @@ from ...node_managers import *
 from ...envs.debug_radius import CableRadiusEmpty
 from ...envs.blend_env import BlendEnvR, BlendEnvI, BlendStrengthEnvI, BlendStrengthEnvR
 from ...envs.rect import RectPIDR, RectPIDI, RectVelEnvI, RectVelEnvR
-from ...envs.cable_env import CableInnerAnglesI, CableInnerAnglesR
+from ...envs.cable_env import CableInnerAnglesI, CableInnerAnglesR, CableEnvNaiveR, CableEnvNaiveI
 from ...envs.cable_env import CablePIDEnvI, CablePIDEnvR, CableBigTestI, CableBigTestR
 from ...envs.cable_env import CableEnvR, CableEnvI
 from ...envs.last_env import LastEnvR, LastEnvI
 from ..analyzable.analyzable import SimulatorA
 from ...simulator.simulator import Simulator
+from ...envs.dodge_env import DodgeEnvR, DodgeEnvI, DodgeEnvVelI, DodgeEnvVelR, DodgeEnvVelPenaltyI, DodgeEnvVelPenaltyR, DodgeEnvReductionI, DodgeEnvReductionR, DodgeEnvReductionVelR, DodgeEnvReductionVelI
 """
 Here you can build your environments so they can be easily imported everywhere
 (for learning, for rrt planning, for saved path replaying, for replaying learned RL models... )
@@ -201,7 +202,7 @@ class StandardCableMaker(_Maker):
     def _non_resetable_class(self):
         return CableEnvI
 
-    def first_try(self, movement_force=300, **kwargs):
+    def first_try(self, movement_force=500, **kwargs):
         cur_map_cls = self._map_helper()
         self.cfg = self._cfg_helper()
         ctrl_idxs = None
@@ -252,10 +253,67 @@ class StandardCableMaker(_Maker):
 
         def raw_maker():
             cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
-            return self._resetable_decision()(cur_map, 300, nm, render_mode=self.render_mode)
+            return self._resetable_decision()(cur_map, 600, nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+
+
+class DodgeEnvMaker(StandardCableMaker):
+    def _resetable_class(self):
+        return DodgeEnvR
+
+    def _non_resetable_class(self):
+        return DodgeEnvI
+
+    def first_try(self, **kwargs):
+        return super().first_try(movement_force=500, **kwargs)
+
+
+class DodgeEnvVelMaker(DodgeEnvMaker):
+    def _resetable_class(self):
+        return DodgeEnvVelR
+
+    def _non_resetable_class(self):
+        return DodgeEnvVelI
+
+    def first_try(self, **kwargs):
+        return super().first_try(**kwargs)
+
+
+class DodgeEnvVelPenaltyMaker(DodgeEnvMaker):
+    def _resetable_class(self):
+        return DodgeEnvVelPenaltyR
+
+    def _non_resetable_class(self):
+        return DodgeEnvVelPenaltyI
+
+
+class DodgeEnvReductionMaker(DodgeEnvMaker):
+    def _resetable_class(self):
+        return DodgeEnvReductionR
+
+    def _non_resetable_class(self):
+        return DodgeEnvReductionI
+
+
+class DodgeEnvReductionVelMaker(DodgeEnvMaker):
+    def _resetable_class(self):
+        return DodgeEnvReductionVelR
+
+    def _non_resetable_class(self):
+        return DodgeEnvReductionVelI
+
+
+class CableNaiveMaker(StandardCableMaker):
+    def _resetable_class(self):
+        return CableEnvNaiveR
+
+    def _non_resetable_class(self):
+        return CableEnvNaiveI
+
+    def first_try(self, **kwargs):
+        return super().first_try(movement_force=500, **kwargs)
 
 
 class CableBigTestMaker(StandardCableMaker):

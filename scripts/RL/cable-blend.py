@@ -90,6 +90,58 @@ def blend_strenght_nonconvex():
     print("Training done")
 
 
+def blend_tuned():
+    MAP_NAME = 'AlmostEmpty'
+    TIMESTEPS = 6_000_000
+    cfg = STANDARD_CONFIG.copy()
+    cfg['threshold'] = 20
+    data = {
+        "map_name": MAP_NAME
+    }
+    maker_factory = BlendMaker(MAP_NAME, cfg, resetable=True)
+    maker, maker_name, _ = maker_factory.first_try()
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+    n_envs = 64
+    env = create_multi_env(maker, n_envs, normalize=True)
+    eval_env = create_multi_env(maker, 1, normalize=True)
+    ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
+    model = PPO("MlpPolicy", env, verbose=0,
+                tensorboard_log=paths['tb'], device='cpu', batch_size=2048, gamma=0.9999, learning_rate=1.4791952986512179e-05, clip_range=0.3, n_epochs=20, gae_lambda=0.9,
+                policy_kwargs=dict(
+                    net_arch=dict(pi=[512, 512], vf=[512, 512]),
+                    activation_fn=nn.Tanh),)
+    print("Training model")
+    model.learn(total_timesteps=TIMESTEPS, callback=[ch_clb, eval_clb])
+    print("Training done")
+
+
+def blend_tuned2():
+    MAP_NAME = 'AlmostEmpty'
+    TIMESTEPS = 6_000_000
+    cfg = STANDARD_CONFIG.copy()
+    cfg['threshold'] = 20
+    data = {
+        "map_name": MAP_NAME
+    }
+    maker_factory = BlendMaker(MAP_NAME, cfg, resetable=True)
+    maker, maker_name, _ = maker_factory.first_try()
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+    n_envs = 128
+    env = create_multi_env(maker, n_envs, normalize=True)
+    eval_env = create_multi_env(maker, 1, normalize=True)
+    ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
+    model = PPO("MlpPolicy", env, verbose=0,
+                tensorboard_log=paths['tb'], device='cpu', batch_size=512, gamma=0.9999, learning_rate=.00031633337101809035, clip_range=0.1, n_epochs=20, gae_lambda=0.9,
+                policy_kwargs=dict(
+                    net_arch=dict(pi=[64, 64], vf=[64, 64]),
+                    activation_fn=nn.ReLU),)
+    print("Training model")
+    model.learn(total_timesteps=TIMESTEPS, callback=[ch_clb, eval_clb])
+    print("Training done")
+
+
 if __name__ == '__main__':
-    blend_basic()
+    # blend_basic()
+    # blend_tuned()
+    blend_tuned2()
     # blend_strenght_nonconvex()

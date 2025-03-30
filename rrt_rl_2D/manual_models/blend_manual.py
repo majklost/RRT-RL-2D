@@ -38,6 +38,7 @@ class BlendManualModel(BaseManualModel):
         target_vecs = obs[:self.segnum * 2].reshape(self.segnum, 2)
 
         obstacle_vecs = obs[self.segnum * 2:].reshape(self.segnum, 2)
+        
         obstacle_norms = np.linalg.norm(obstacle_vecs, axis=1)
         target_norms = np.linalg.norm(target_vecs, axis=1)
 
