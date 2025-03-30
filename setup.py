@@ -10,6 +10,7 @@ setup(
         'pymunk',
         'pygame',
         'tensorboard',
+        'optuna',
     ],
     author="Michal Mrkos",
     author_email="mrkosmic@fel.cvut.cz",

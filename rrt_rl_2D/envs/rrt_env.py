@@ -29,6 +29,7 @@ class BaseEnv(gym.Env):
         # For warning
         self.reset_called = False
         self.import_called = False
+        self.step_num = 0
         # For rendering
         self.last_reward = 0
         self.cur_return = 0
@@ -44,6 +45,7 @@ class BaseEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         self._reset()
+        self.step_num = 0
 
         return self._get_observation(), self._get_info()
 
@@ -54,6 +56,7 @@ class BaseEnv(gym.Env):
         pass
 
     def step(self, action):
+        self.step_num += 1
         self.map.sim.step()
         self.node_manager.after_step_clb(self)
 

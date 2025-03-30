@@ -35,7 +35,7 @@ class CableEnv(BaseEnv):
             self.map.agent.bodies[i].apply_force(cur_action)
 
         self.last_actions = np.array(self.last_actions)
-        return super().step(action)
+        return BaseEnv.step(self, action)
 
     def _process_action(self, cur_action, idx):
         if np.linalg.norm(cur_action) > 1:
@@ -147,6 +147,15 @@ class CableEnv(BaseEnv):
         return responses - self.map.agent.position
 
 
+class CableEnvNaive(CableEnv):
+    def _create_observation_space(self):
+        limit = max(self.map.cfg['width'], self.map.cfg['height'])
+        return gym.spaces.Box(low=-limit, high=limit, shape=(self.agent_len * 4,), dtype=np.float64)
+
+    def _get_observation(self):
+        return np.concatenate([self.map.agent.position.flatten(), self.goal.goal.flatten()])
+
+
 class CablePIDEnv(CableEnv):
     """
     Takes the action as the desired velocity of the agent.
@@ -227,6 +236,14 @@ class CableBigTest(CableEnv):
         reward += angle_reward
 
         return reward, False
+
+
+class CableEnvNaiveR(ResetableEnv, CableEnvNaive):
+    pass
+
+
+class CableEnvNaiveI(ImportableEnv, CableEnvNaive):
+    pass
 
 
 class CableBigTestR(ResetableEnv, CableBigTest):
