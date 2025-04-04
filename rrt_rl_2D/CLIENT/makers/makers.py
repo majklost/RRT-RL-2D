@@ -15,7 +15,9 @@ from ...envs.cable_env import CableEnvR, CableEnvI
 from ...envs.last_env import LastEnvR, LastEnvI
 from ..analyzable.analyzable import SimulatorA
 from ...simulator.simulator import Simulator
-from ...envs.dodge_env import DodgeEnvR, DodgeEnvI, DodgeEnvVelI, DodgeEnvVelR, DodgeEnvVelPenaltyI, DodgeEnvVelPenaltyR, DodgeEnvReductionI, DodgeEnvReductionR, DodgeEnvReductionVelR, DodgeEnvReductionVelI
+from ...envs.dodge_env import DodgeEnvR, DodgeEnvI, DodgeEnvVelI, DodgeEnvVelR, DodgeEnvPenaltyI, DodgeEnvPenaltyR, DodgeEnvReductionI, DodgeEnvReductionR, DodgeEnvReductionVelR, DodgeEnvReductionVelI, DodgeEnvPenaltyReductionI, DodgeEnvPenaltyReductionR
+
+
 """
 Here you can build your environments so they can be easily imported everywhere
 (for learning, for rrt planning, for saved path replaying, for replaying learned RL models... )
@@ -269,6 +271,9 @@ class DodgeEnvMaker(StandardCableMaker):
     def first_try(self, **kwargs):
         return super().first_try(movement_force=500, **kwargs)
 
+    def analyzable(self, **kwargs):
+        return super().analyzable(**kwargs)
+
 
 class DodgeEnvVelMaker(DodgeEnvMaker):
     def _resetable_class(self):
@@ -280,13 +285,16 @@ class DodgeEnvVelMaker(DodgeEnvMaker):
     def first_try(self, **kwargs):
         return super().first_try(**kwargs)
 
+    def analyzable(self, **kwargs):
+        return super().analyzable(**kwargs)
 
-class DodgeEnvVelPenaltyMaker(DodgeEnvMaker):
+
+class DodgeEnvPenaltyMaker(DodgeEnvMaker):
     def _resetable_class(self):
-        return DodgeEnvVelPenaltyR
+        return DodgeEnvPenaltyR
 
     def _non_resetable_class(self):
-        return DodgeEnvVelPenaltyI
+        return DodgeEnvPenaltyI
 
 
 class DodgeEnvReductionMaker(DodgeEnvMaker):
@@ -303,6 +311,14 @@ class DodgeEnvReductionVelMaker(DodgeEnvMaker):
 
     def _non_resetable_class(self):
         return DodgeEnvReductionVelI
+
+
+class DodgeEnvPenaltyReductionMaker(DodgeEnvMaker):
+    def _resetable_class(self):
+        return DodgeEnvPenaltyReductionR
+
+    def _non_resetable_class(self):
+        return DodgeEnvPenaltyReductionI
 
 
 class CableNaiveMaker(StandardCableMaker):
