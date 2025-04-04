@@ -1,4 +1,5 @@
 import warnings
+import numpy as np
 import inspect
 from typing import Callable
 import gymnasium as gym
@@ -83,6 +84,22 @@ class SaveModelCallback(BaseCallback):
         if self.num_timesteps % self.save_freq == 0:
             print(f"Saving model")
             self.model.save(self.save_path)
+        return True
+
+
+class EpisodePrinter(BaseCallback):
+    """
+    Callback for printing when episode ends.
+    :param verbose: (int) the verbosity level
+    """
+
+    def __init__(self, verbose=0):
+        super().__init__(verbose)
+
+    def _on_step(self) -> bool:
+        assert "dones" in self.locals, "Dones not found in locals"
+        if np.any(self.locals["dones"]):
+            print("Episode ended")
         return True
 
 
