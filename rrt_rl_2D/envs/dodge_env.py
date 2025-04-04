@@ -98,6 +98,9 @@ class DodgeEnvPenalty(DodgeEnv):
 
 
 class DodgeEnvReduction(DodgeEnv):
+    def _calc_transition(self):
+        return np.tanh(1.8 * self._normalized_step_num()) / np.tanh(1.8)
+
     def step(self, action):
         self.last_actions = np.zeros((self.agent_len, 2))
         if self.goal.controllable_idxs is not None:
@@ -112,7 +115,7 @@ class DodgeEnvReduction(DodgeEnv):
             cur_action = self._process_action(cur_action, i)
             advised_action = self._process_action(advised_action, i)
             cur_action = self._process_action(
-                (2 - 2 * self._normalized_step_num()) * cur_action + advised_action, i)
+                (2 - 2 * self._calc_transition()) * cur_action + advised_action, i)
             self.last_actions[i, :] = cur_action
             self.map.agent.bodies[i].apply_force(cur_action)
 

@@ -6,7 +6,7 @@ from rrt_rl_2D import *
 from rrt_rl_2D.CLIENT.makers import *
 from rrt_rl_2D.CLIENT.makers.makers import CableNaiveMaker
 from rrt_rl_2D.utils.save_manager import load_manager, get_paths, get_run_paths
-from rrt_rl_2D.RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
+from rrt_rl_2D.RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name, EpisodePrinter
 
 
 EXPERIMENTS_PATH = Path(__file__).parent.parent.parent / "experiments" / 'RL'
@@ -66,9 +66,10 @@ def standard():
         net_arch=dict(pi=[256, 256], vf=[256, 256]),
         activation_fn=nn.Tanh),
     )
-
+    ep_printer = EpisodePrinter()
     print("Training model")
-    model.learn(total_timesteps=4_000_000, callback=[ch_clb, eval_clb])
+    model.learn(total_timesteps=4_000_000, callback=[
+                ch_clb, eval_clb, ep_printer])
     print("Training done")
 
 
@@ -297,9 +298,9 @@ if __name__ == '__main__':
     # dodge()
     # dodgeVel()
     # dodgePenalty()
-    # standard()
+    standard()
     # big_test()
     # dodgeVelReduction()
     # dodgeReduction()
     # dodgePenaltyReduction()
-    dodgePenaltyReductionContinue()
+    # dodgePenaltyReductionContinue()

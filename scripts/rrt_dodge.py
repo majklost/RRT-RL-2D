@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3 import PPO
-from rrt_rl_2D.CLIENT.makers import DodgeEnvPenaltyReductionMaker, DodgeEnvMaker
+from rrt_rl_2D.CLIENT.makers import DodgeEnvPenaltyReductionMaker, DodgeEnvMaker, DodgeEnvPenaltyMaker
 from rrt_rl_2D import *
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
@@ -29,16 +29,12 @@ cfg['cable_length'] = 300
 cfg['checkpoint_period'] = 20
 cfg['seed_env'] = 50
 # cfg['seed_plan'] = 115
-cfg['seed_plan'] = 66
+cfg['seed_plan'] = 60
 cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
-MAP_NAME = 'AlmostEmpty'
+MAP_NAME = 'StandardStones'
 
-
-class LinearModel(BaseManualModel):
-    def predict(self, obs):
-        return obs, None
 
 
 def distance_fnc(n1, n2):
@@ -56,9 +52,9 @@ def distance_fnc(n1, n2):
 
 storage = storages.GNAT(distance_fnc)
 
-paths = get_run_paths('cable-standard-dodgePenaltyReduction', run_cnt=2)
+paths = get_run_paths('cable-standard-dodgePenalty', run_cnt=2)
 
-maker_factory = DodgeEnvPenaltyReductionMaker(MAP_NAME, cfg)
+maker_factory = DodgeEnvPenaltyMaker(MAP_NAME, cfg)
 
 maker, maker_name, stuff = maker_factory.first_try()
 node_manager = stuff['nm']
@@ -102,9 +98,9 @@ def custom_clb(screen, font):
 dummy = NullRenderer()
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
-env.env_method("set_renderer", renderer)
+# env.env_method("set_renderer", renderer)
 try:
-    for i in range(20000):
+    for i in range(6000):
         if not s_wrapper.want_next_iter:
             print("Goal reached")
             print("Iterations: ", i)
