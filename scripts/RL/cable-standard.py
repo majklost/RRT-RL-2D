@@ -15,34 +15,6 @@ load_manager(EXPERIMENTS_PATH)
 BASE_NAME = 'cable-standard-'
 
 
-def inner_angles():
-    cfg = STANDARD_CONFIG.copy()
-    MAP_NAME = 'Empty'
-    cfg['threshold'] = 20
-    maker, maker_name, objects = CableInnerAnglesMaker(
-        MAP_NAME, cfg=cfg, resetable=True).first_try()
-    data = {
-        "map_name": MAP_NAME,
-        "cfg": cfg
-    }
-    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
-    env = create_multi_env(
-        maker, 32, normalize=True)
-    eval_env = create_multi_env(maker, 1, normalize=True)
-
-    ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
-    model = PPO("MlpPolicy", env, verbose=0, tensorboard_log=paths['tb'], device='cpu',
-                batch_size=32, gamma=0.9999, learning_rate=7.134646320811716e-05, clip_range=0.4, n_epochs=4, gae_lambda=0.98,
-                policy_kwargs=dict(
-        net_arch=dict(pi=[256, 256], vf=[256, 256]),
-        activation_fn=nn.Tanh),
-    )
-
-    print("Training model")
-    model.learn(total_timesteps=12_000_000, callback=[ch_clb, eval_clb])
-    print("Training done")
-
-
 def big_test():
     cfg = STANDARD_CONFIG.copy()
     MAP_NAME = 'Empty'
@@ -184,17 +156,18 @@ def dodgeVel():
     print("Training done")
 
 
-def dodgeVelPenalty():
+def dodgePenalty():
     cfg = STANDARD_CONFIG.copy()
     MAP_NAME = 'NonConvex'
     cfg['threshold'] = 20
-    maker, maker_name, _ = DodgeEnvVelPenaltyMaker(
+    maker, maker_name, _ = DodgeEnvPenaltyMaker(
         MAP_NAME, cfg=cfg, resetable=True).first_try()
     data = {
         "map_name": MAP_NAME,
         "cfg": cfg
     }
-    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+    paths = get_paths(get_name(BASE_NAME),
+                      'stronger penalty', maker_name, data=data)
     env = create_multi_env(
         maker, 32, normalize=True)
     eval_env = create_multi_env(maker, 1, normalize=True)
@@ -208,7 +181,7 @@ def dodgeVelPenalty():
     )
 
     print("Training model")
-    model.learn(total_timesteps=12_000_000, callback=[ch_clb, eval_clb])
+    model.learn(total_timesteps=20_000_000, callback=[ch_clb, eval_clb])
     print("Training done")
 
 
@@ -268,13 +241,65 @@ def dodgeVelReduction():
     print("Training done")
 
 
+def dodgePenaltyReduction():
+    cfg = STANDARD_CONFIG.copy()
+    MAP_NAME = 'NonConvex'
+    cfg['threshold'] = 20
+    maker, maker_name, _ = DodgeEnvPenaltyReductionMaker(
+        MAP_NAME, cfg=cfg, resetable=True).first_try()
+    data = {
+        "map_name": MAP_NAME,
+        "cfg": cfg
+    }
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+    env = create_multi_env(
+        maker, 32, normalize=True)
+    eval_env = create_multi_env(maker, 1, normalize=True)
+
+    ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
+    model = PPO("MlpPolicy", env, verbose=0, tensorboard_log=paths['tb'], device='cpu',
+                batch_size=32, gamma=0.9999, learning_rate=7.134646320811716e-05, clip_range=0.4, n_epochs=4, gae_lambda=0.98,
+                policy_kwargs=dict(
+        net_arch=dict(pi=[256, 256], vf=[256, 256]),
+        activation_fn=nn.Tanh),
+    )
+
+    print("Training model")
+    model.learn(total_timesteps=20_000_000, callback=[ch_clb, eval_clb])
+    print("Training done")
+
+
+def dodgePenaltyReductionContinue():
+    cfg = STANDARD_CONFIG.copy()
+    MAP_NAME = 'NonConvex'
+    cfg['threshold'] = 20
+    maker, maker_name, _ = DodgeEnvPenaltyReductionMaker(
+        MAP_NAME, cfg=cfg, resetable=True).first_try()
+    data = {
+        "map_name": MAP_NAME,
+        "cfg": cfg
+    }
+    paths = get_paths(get_name(BASE_NAME), 'comment', maker_name, data=data)
+    env = create_multi_env(
+        maker, 32, normalize=True)
+    eval_env = create_multi_env(maker, 1, normalize=True)
+
+    ch_clb, eval_clb = create_callback_list(paths=paths, eval_env=eval_env)
+    model = PPO.load(paths['model_last'], env=env)
+    print("Training model")
+    model.learn(total_timesteps=20_000_000, callback=[ch_clb, eval_clb])
+    print("Training done")
+
+
 if __name__ == '__main__':
-    # inner_angles()
+
     # naive()
     # dodge()
     # dodgeVel()
-    # dodgeVelPenalty()
+    # dodgePenalty()
     # standard()
     # big_test()
     # dodgeVelReduction()
-    dodgeReduction()
+    # dodgeReduction()
+    # dodgePenaltyReduction()
+    dodgePenaltyReductionContinue()

@@ -77,11 +77,24 @@ class DodgeEnvVel(DodgeEnv):
         return np.concatenate([obstacle.flatten(), self.map.agent.velocity.flatten(), [self._normalized_step_num()]])
 
 
-class DodgeEnvVelPenalty(DodgeEnvVel):
+class DodgeEnvPenalty(DodgeEnv):
     def _get_reward(self):
-        reward, done = super()._get_reward()
-        penalty = np.linalg.norm(self.map.agent.velocity)
-        return reward - penalty, done
+        if self.map.agent.outer_collision_idxs:
+            self.fail = True
+            return -1000, True
+
+        distances = self._get_target_distance_vecs()
+        if np.all(np.linalg.norm(distances, axis=1) < self.goal.threshold):
+            self.reached = True
+            return 1000, True
+
+        potential = self._calc_potential(distances)
+        if self.last_target_potential == 0:
+            self.last_target_potential = potential  # return zero
+
+        reward = potential - self.last_target_potential
+        self.last_target_potential = potential
+        return reward, False
 
 
 class DodgeEnvReduction(DodgeEnv):
@@ -107,16 +120,44 @@ class DodgeEnvReduction(DodgeEnv):
         return BaseEnv.step(self, action)
 
 
+class DodgeEnvPenaltyReduction(DodgeEnvReduction):
+    def _get_reward(self):
+        if self.map.agent.outer_collision_idxs:
+            self.fail = True
+            return -500, True
+
+        distances = self._get_target_distance_vecs()
+        if np.all(np.linalg.norm(distances, axis=1) < self.goal.threshold):
+            self.reached = True
+            return 500, True
+
+        potential = self._calc_potential(distances)
+        if self.last_target_potential == 0:
+            self.last_target_potential = potential  # return zero
+
+        reward = potential - self.last_target_potential
+        self.last_target_potential = potential
+        return reward, False
+
+
 class DodgeEnvReductionVel(DodgeEnvVel, DodgeEnvReduction):
     def step(self, action):
         return DodgeEnvReduction.step(self, action)
 
 
-class DodgeEnvVelPenaltyR(ResetableEnv, DodgeEnvVelPenalty):
+class DodgeEnvPenaltyReductionR(ResetableEnv, DodgeEnvPenaltyReduction):
     pass
 
 
-class DodgeEnvVelPenaltyI(ImportableEnv, DodgeEnvVelPenalty):
+class DodgeEnvPenaltyReductionI(ImportableEnv, DodgeEnvPenaltyReduction):
+    pass
+
+
+class DodgeEnvPenaltyR(ResetableEnv, DodgeEnvPenalty):
+    pass
+
+
+class DodgeEnvPenaltyI(ImportableEnv, DodgeEnvPenalty):
     pass
 
 
