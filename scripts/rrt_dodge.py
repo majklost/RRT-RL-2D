@@ -36,7 +36,6 @@ init_manager(cfg['seed_env'], cfg['seed_plan'])
 MAP_NAME = 'StandardStones'
 
 
-
 def distance_fnc(n1, n2):
 
     if isinstance(n1, GoalNode):
@@ -52,7 +51,7 @@ def distance_fnc(n1, n2):
 
 storage = storages.GNAT(distance_fnc)
 
-paths = get_run_paths('cable-standard-dodgePenalty', run_cnt=2)
+paths = get_run_paths('cable-RRT-run', run_cnt=7)
 
 maker_factory = DodgeEnvPenaltyMaker(MAP_NAME, cfg)
 
@@ -98,7 +97,7 @@ def custom_clb(screen, font):
 dummy = NullRenderer()
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
-# env.env_method("set_renderer", renderer)
+env.env_method("set_renderer", renderer)
 try:
     for i in range(6000):
         if not s_wrapper.want_next_iter:
