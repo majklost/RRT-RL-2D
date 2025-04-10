@@ -270,13 +270,85 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
     return ret
 
 
-def shit(map_name, cfg: StandardConfig, **kwargs):
+def blendManual(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
     maker_factory = BlendMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.analyzable()
     node_manager = stuff['nm']
     model = BlendManualModel(cfg['seg_num'])
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def dodgeReduction(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = DodgeEnvPenaltyReductionMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.analyzable()
+    node_manager = stuff['nm']
+    rpaths = get_run_paths('cable-standard-dodgePenaltyReduction', run_cnt=2)
+    model = PPO.load(rpaths['model_last'], device='cpu')
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def dodgePenalty(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = DodgeEnvPenaltyMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.analyzable()
+    node_manager = stuff['nm']
+    rpaths = get_run_paths('cable-standard-dodgePenalty', run_cnt=4)
+    model = PPO.load(rpaths['model_last'], device='cpu')
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def dodgeRRT(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = DodgeEnvPenaltyMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.analyzable()
+    node_manager = stuff['nm']
+    rpaths = get_run_paths('cable-RRT-run', run_cnt=7)
+    model = PPO.load(rpaths['model_last'], device='cpu')
     env = create_multi_env(maker, 1, normalize=False)
     cur_map = env.env_method("get_map")[0]
     sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
@@ -390,7 +462,10 @@ TXT2MODEL = {
     "TwoControl": two_controllable,
     "BlendUnlearn": blender_unlearn,
     "CableRL": cable_RL,
-    "Shit": shit
+    "BlendManual": blendManual,
+    "DodgeReduction": dodgeReduction,
+    "DodgePenalty": dodgePenalty,
+    "DodgeRRT": dodgeRRT
 }
 
 

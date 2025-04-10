@@ -3,6 +3,7 @@ experiments/
 data/
 archived/
 .vscode/
+.VSCodeCounter/*
 *.rpath
 
 .VSCodeCounte/
