@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pygame
 
 from rrt_rl_2D.maps import *
 from rrt_rl_2D.rendering.debug_renderer import DebugRenderer
@@ -8,7 +9,7 @@ from rrt_rl_2D.controllers.rect_controller import RectController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
 
-class MyMap(Empty):
+class MyMap(Piped):
     pass
 
 
@@ -30,12 +31,14 @@ pos2 = []
 check = m.sim.export()
 
 for i in range(1000):
+
     # print(m.cfg)
     pos1.append(m.agent.position)
     sim.step()
     force_buffer.append(m.agent.velocity)
     if m.agent.outer_collision_idxs:
         print("Collision ", i)
+    
 
 dr._controller = None
 m.sim.import_from(check)
