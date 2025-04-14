@@ -6,7 +6,7 @@ from .direct_controller import DirectController
 from ..assets import *
 
 
-class RectController(DirectController):
+class SinglebodyController(DirectController):
     def __init__(self, rect: Rectangle, moving_force=2000):
         self.rect = rect
         self.moving_force = moving_force
