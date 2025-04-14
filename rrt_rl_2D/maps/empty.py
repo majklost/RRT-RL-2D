@@ -151,3 +151,47 @@ class RectangleEmpty(Empty):
         upper_bounds = np.array(
             [self.cfg["width"] - self.MARGIN, self.cfg["height"] - self.MARGIN])
         return NDIMSampler(lower_bounds, upper_bounds)
+
+
+class CircleEmpty(Empty):
+    """
+    When added as superclass before Empty, it will create a circle agent instead of a cable.
+    Must be placed before Empty in the inheritance list.
+    Must be placed before ResetableEmpty in the inheritance list.
+    """
+
+    def _get_radius(self):
+        return 20
+
+    def _add_agent(self):
+        self.agent = Circle(self.START, self._get_radius(),
+                            pymunk.Body.DYNAMIC)
+
+        self.movable_objects.append(self.agent)
+
+    def _create_sampler(self):
+        lower_bounds = np.array([self.MARGIN, self.MARGIN])
+        upper_bounds = np.array(
+            [self.cfg["width"] - self.MARGIN, self.cfg["height"] - self.MARGIN])
+        return NDIMSampler(lower_bounds, upper_bounds)
+
+
+class FoamEmpty(Empty):
+    """
+    When added as superclass before Empty, it will create a foam agent instead of a cable.
+    Must be placed before Empty in the inheritance list.
+    Must be placed before ResetableEmpty in the inheritance list.
+    """
+
+    def _get_width(self):
+        return 200
+
+    def _get_height(self):
+        return 300
+
+    def _add_agent(self):
+        dims = np.array([self._get_width(), self._get_height()])
+        self.agent = Foam(self.START - dims / 2, dims,
+                          masspoint_per_length=.02, mass_radius=10)
+
+        self.movable_objects.append(self.agent)

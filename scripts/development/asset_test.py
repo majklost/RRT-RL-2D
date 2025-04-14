@@ -9,7 +9,7 @@ from rrt_rl_2D.controllers.singlebody_controller import SinglebodyController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
 
-class MyMap(RectangleEmpty, Piped):
+class MyMap(FoamEmpty, Piped):
     pass
 
 
@@ -17,9 +17,9 @@ cfg = STANDARD_CONFIG.copy()
 cfg['seg_num'] = 40
 m = MyMap(cfg)
 sim = m.sim
-dr = DebugRenderer()
-controller = SinglebodyController(m.agent)
-# controller = CableController(m.agent)
+dr = DebugRenderer(render_constraints=True)
+# controller = SinglebodyController(m.agent)
+controller = CableController(m.agent, moving_force=1000)
 
 dr.attach_controller(controller)
 sim.attach_renderer(dr)
@@ -30,27 +30,7 @@ pos1 = []
 pos2 = []
 check = m.sim.export()
 
-for i in range(1000):
-
-    print(m.cfg)
-    pos1.append(m.agent.position)
+for i in range(10000):
     sim.step()
-    force_buffer.append(m.agent.velocity)
     if m.agent.outer_collision_idxs:
         print("Collision ", i)
-
-
-dr._controller = None
-m.sim.import_from(check)
-for i in range(len(force_buffer)):
-    pos2.append(m.agent.position)
-    sim.step()
-
-    m.agent.velocity = force_buffer[i]
-
-
-errors = [np.max(np.linalg.norm(p1 - p2, axis=1))
-          for p1, p2 in zip(pos1, pos2)]
-plt.plot(errors)
-print(max(errors))
-plt.show()

@@ -6,7 +6,7 @@ import pygame
 from rrt_rl_2D.maps import *
 from rrt_rl_2D.rendering.debug_renderer import DebugRenderer
 from rrt_rl_2D.controllers.cable_controller import CableController
-from rrt_rl_2D.controllers.rect_controller import RectController
+from rrt_rl_2D.controllers.singlebody_controller import SinglebodyController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
 map_classes = [Empty, Piped, StandardStones, ThickStones, NonConvex]
@@ -19,7 +19,7 @@ for map_cls in map_classes:
 
     sim = m.sim
     dr = DebugRenderer()
-    # controller = RectController(m.agent)
+    # controller = SinglebodyController(m.agent)
     controller = CableController(m.agent)
 
     dr.attach_controller(controller)

@@ -1,10 +1,10 @@
-from .empty import Empty, RectangleEmpty, ResetableEmpty
+from .empty import Empty, RectangleEmpty, ResetableEmpty,CircleEmpty,FoamEmpty
 from .piped import Piped
 from .non_convex import NonConvex
 from .stones import StandardStones, ThickStones, AlmostEmpty
 
 __all__ = ["Empty", "RectangleEmpty", "ResetableEmpty", "Piped",
-           "NonConvex", "StandardStones", "ThickStones", "AlmostEmpty", "RectangleEmpty"]
+           "NonConvex", "StandardStones", "ThickStones", "AlmostEmpty", "RectangleEmpty","CircleEmpty","FoamEmpty"]
 
 
 str2map = {
