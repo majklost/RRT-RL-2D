@@ -270,6 +270,36 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
     return ret
 
 
+def five_controllable(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    class LinearModel(BaseManualModel):
+        def predict(self, obs, **kwargs):
+            return obs, None
+    ctrl_idxs = kwargs.get('ctrl_idxs', None)
+    if ctrl_idxs is not None:
+        raise NotImplementedError("Controlled nodes not implemented")
+
+    maker_factory = StandardCableMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.five_controllable_analyzable()
+    node_manager = stuff['nm']
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": LinearModel(),
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name,
+
+    }
+    return ret
+
+
 def blendManual(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
@@ -368,6 +398,8 @@ def dodgeRRT(map_name, cfg: StandardConfig, **kwargs):
 def main(cur_args):
     cfg = create_cfg()
     cfg["seed_plan"] = cur_args.seed
+    if cur_args.seg_num is not None:
+        cfg["seg_num"] = cur_args.seg_num
 
     init_manager(cfg['seed_env'], cfg['seed_plan'])
     returns: Returns = TXT2MODEL[cur_args.mode](cur_args.map_name, cfg)
@@ -465,7 +497,8 @@ TXT2MODEL = {
     "BlendManual": blendManual,
     "DodgeReduction": dodgeReduction,
     "DodgePenalty": dodgePenalty,
-    "DodgeRRT": dodgeRRT
+    "DodgeRRT": dodgeRRT,
+    "FiveControl": five_controllable,
 }
 
 
@@ -486,5 +519,6 @@ if __name__ == "__main__":
     parser.add_argument("--name", type=str, default="PlannedPath")
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--render", action="store_true")
+    parser.add_argument("--seg_num", type=int, default=None)
     args = parser.parse_args()
     main(args)

@@ -9,15 +9,15 @@ from rrt_rl_2D.controllers.singlebody_controller import SinglebodyController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
 
-class MyMap(FoamEmpty, Piped):
+class MyMap(Piped):
     pass
 
 
 cfg = STANDARD_CONFIG.copy()
-cfg['seg_num'] = 40
+cfg['seg_num'] = 20
 m = MyMap(cfg)
 sim = m.sim
-dr = DebugRenderer(render_constraints=True)
+dr = DebugRenderer(render_constraints=False)
 # controller = SinglebodyController(m.agent)
 controller = CableController(m.agent, moving_force=1000)
 

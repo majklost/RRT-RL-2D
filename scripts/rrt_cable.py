@@ -14,7 +14,7 @@ from rrt_rl_2D.export.vel_path_saver import VelPathSaver
 
 
 cfg = STANDARD_CONFIG.copy()
-# cfg['seg_num'] = 40
+cfg['seg_num'] = 30
 # cfg['cable_length'] = 400
 
 cfg['checkpoint_period'] = 20
@@ -32,7 +32,7 @@ ctrl_idxs = None
 
 class LinearModel(BaseManualModel):
     def predict(self, obs, **kwargs):
-        return obs, None
+        return obs / 5, None
 
 
 def distance_fnc(n1, n2):
@@ -49,7 +49,8 @@ def distance_fnc(n1, n2):
 
 
 maker_factory = StandardCableMaker(MAP_NAME, cfg)
-maker, maker_name, objects = maker_factory.first_try()
+maker, maker_name, objects = maker_factory.first_try(
+    movement_force=5000 / cfg['seg_num'])
 # maker, maker_name, objects = maker_factory.one_controllable_analyzable()
 node_manager = objects['nm']
 
@@ -88,7 +89,7 @@ def custom_clb(screen, font):
 
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
-env.env_method("set_renderer", renderer)
+# env.env_method("set_renderer", renderer)
 try:
     for i in range(20000):
         if not s_wrapper.want_next_iter:
