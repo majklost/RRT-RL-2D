@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3 import PPO
-from rrt_rl_2D.CLIENT.makers import BlendMaker
+from rrt_rl_2D.CLIENT.makers import DodgeEnvPenaltyReductionMaker, DodgeEnvMaker, DodgeEnvPenaltyMaker
 from rrt_rl_2D import *
 from rrt_rl_2D.manual_models.base_model import BaseManualModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
@@ -17,7 +17,7 @@ from rrt_rl_2D.RL.training_utils import create_multi_env
 from rrt_rl_2D.export.vel_path_saver import VelPathSaver
 
 
-EXPERIMENTS_PATH = Path(__file__).parent.parent / "experiments" / 'RL'
+EXPERIMENTS_PATH = Path(__file__).parent.parent.parent / "experiments" / 'RL'
 EXPERIMENTS_PATH.mkdir(exist_ok=True, parents=True)
 load_manager(EXPERIMENTS_PATH)
 
@@ -29,16 +29,11 @@ cfg['cable_length'] = 300
 cfg['checkpoint_period'] = 20
 cfg['seed_env'] = 50
 # cfg['seed_plan'] = 115
-cfg['seed_plan'] = 66
+cfg['seed_plan'] = 60
 cfg['threshold'] = 20
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
-MAP_NAME = 'Empty'
-
-
-class LinearModel(BaseManualModel):
-    def predict(self, obs):
-        return obs, None
+MAP_NAME = 'AlmostEmpty'
 
 
 def distance_fnc(n1, n2):
@@ -56,14 +51,14 @@ def distance_fnc(n1, n2):
 
 storage = storages.GNAT(distance_fnc)
 
-paths = get_run_paths('cable-blend-blend_basic', run_cnt=3)
+paths = get_run_paths('cable-RRT-run', run_cnt=7)
 
-maker_factory = BlendMaker(MAP_NAME, cfg)
+maker_factory = DodgeEnvPenaltyMaker(MAP_NAME, cfg)
 
 maker, maker_name, stuff = maker_factory.first_try()
 node_manager = stuff['nm']
 
-model = PPO.load(paths['model_best'], device='cpu')
+model = PPO.load(paths['model_last'], device='cpu')
 
 
 env = create_multi_env(maker, 1, normalize_path=paths['norm'])
@@ -104,7 +99,7 @@ renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
 # env.env_method("set_renderer", renderer)
 try:
-    for i in range(20000):
+    for i in range(6000):
         if not s_wrapper.want_next_iter:
             print("Goal reached")
             print("Iterations: ", i)

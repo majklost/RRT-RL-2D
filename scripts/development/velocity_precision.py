@@ -1,10 +1,11 @@
+"""Test how much differs velocity descripted path form original path"""
 import numpy as np
 import matplotlib.pyplot as plt
 import pygame
 
 from rrt_rl_2D.maps import *
 from rrt_rl_2D.rendering.debug_renderer import DebugRenderer
-from rrt_rl_2D.controllers.cable_controller import CableController
+from rrt_rl_2D.controllers.cable_controller import MultiBodyController
 from rrt_rl_2D.controllers.singlebody_controller import SinglebodyController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
