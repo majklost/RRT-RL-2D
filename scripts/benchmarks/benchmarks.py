@@ -113,6 +113,16 @@ def cable(map_name, cfg: StandardConfig, **kwargs):
     return ret
 
 
+def cable20(map_name, cfg: StandardConfig, **kwargs):
+    cfg['seg_num'] = 20
+    return cable(map_name, cfg, **kwargs)
+
+
+def cable30(map_name, cfg: StandardConfig, **kwargs):
+    cfg['seg_num'] = 30
+    return cable(map_name, cfg, **kwargs)
+
+
 def cable_RL(map_name, cfg: StandardConfig, **kwargs):
     maker_factory = LastEnvMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.analyzable()
@@ -259,7 +269,6 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
 
 def five_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
-
 
     ctrl_idxs = kwargs.get('ctrl_idxs', None)
     if ctrl_idxs is not None:
@@ -484,6 +493,8 @@ TXT2MODEL = {
     "DodgePenalty": dodgePenalty,
     "DodgeRRT": dodgeRRT,
     "FiveControl": five_controllable,
+    "Cable20": cable20,
+    "Cable30": cable30,
 }
 
 
