@@ -1,39 +1,32 @@
 import numpy as np
 import pygame
-from pathlib import Path
 import time
 from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3 import PPO
-from rrt_rl_2D.CLIENT.makers import DodgeEnvPenaltyReductionMaker, DodgeEnvMaker, DodgeEnvPenaltyMaker
+from rrt_rl_2D.CLIENT.makers import StandardCableMaker
 from rrt_rl_2D import *
-from rrt_rl_2D.manual_models.base_model import BaseManualModel
+from rrt_rl_2D.manual_models import LinearModel
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.rendering.null_renderer import NullRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
 from rrt_rl_2D.export.vel_path_replayer import VelPathReplayerCable
-from rrt_rl_2D.utils.save_manager import load_manager, get_run_paths
-
-from rrt_rl_2D.RL.training_utils import create_multi_env
 from rrt_rl_2D.export.vel_path_saver import VelPathSaver
 
 
-EXPERIMENTS_PATH = Path(__file__).parent.parent / "experiments" / 'RL'
-EXPERIMENTS_PATH.mkdir(exist_ok=True, parents=True)
-load_manager(EXPERIMENTS_PATH)
-
-
 cfg = STANDARD_CONFIG.copy()
-# cfg['seg_num'] = 60
-cfg['cable_length'] = 300
+cfg['seg_num'] = 30
+# cfg['cable_length'] = 400
 
 cfg['checkpoint_period'] = 20
 cfg['seed_env'] = 50
-# cfg['seed_plan'] = 115
-cfg['seed_plan'] = 60
+cfg['seed_plan'] = 115
+# cfg['seed_plan'] = 15
 cfg['threshold'] = 20
+MAP_NAME = 'AlmostEmpty'
 init_manager(cfg['seed_env'], cfg['seed_plan'])
 
-MAP_NAME = 'StandardStones'
+ctrl_idxs = None
+# ctrl_idxs = [0]
+# ctrl_idxs = [0, cfg['seg_num'] // 2, cfg['seg_num'] - 1]
 
 
 def distance_fnc(n1, n2):
@@ -49,22 +42,16 @@ def distance_fnc(n1, n2):
     return np.linalg.norm(n1.agent_pos - n2.agent_pos)
 
 
-storage = storages.GNAT(distance_fnc)
+maker_factory = StandardCableMaker(MAP_NAME, cfg)
+maker, maker_name, objects = maker_factory.first_try(
+    movement_force=5000 / cfg['seg_num'])
+# maker, maker_name, objects = maker_factory.one_controllable_analyzable()
+node_manager = objects['nm']
 
-paths = get_run_paths('cable-RRT-run', run_cnt=7)
-
-maker_factory = DodgeEnvPenaltyMaker(MAP_NAME, cfg)
-
-maker, maker_name, stuff = maker_factory.first_try()
-node_manager = stuff['nm']
-
-model = PPO.load(paths['model_last'], device='cpu')
-
-
-env = create_multi_env(maker, 1, normalize_path=paths['norm'])
+env = make_vec_env(maker, 1)
 cur_map = env.env_method("get_map")[0]
 
-
+storage = storages.GNAT(distance_fnc)
 sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
                         (cfg["width"], cfg["height"], 2 * np.pi))
 
@@ -74,7 +61,7 @@ overall_goal = GoalNode(
 s_wrapper = storage_wrappers.rect_end_wrapper.RectEndWrapper(
     storage, distance_fnc, overall_goal, cfg)
 
-planner = VecEnvPlanner(env, model, cfg)
+planner = VecEnvPlanner(env, LinearModel(), cfg)
 
 start_node = env.env_method("export_state")
 response = PlannerResponse(start_node, {})
@@ -94,16 +81,13 @@ def custom_clb(screen, font):
     s_wrapper.render_clb(screen, font)
 
 
-dummy = NullRenderer()
 renderer = EnvRenderer(cfg)
 renderer.register_callback(custom_clb)
-env.env_method("set_renderer", renderer)
+# env.env_method("set_renderer", renderer)
 try:
-    for i in range(6000):
+    for i in range(20000):
         if not s_wrapper.want_next_iter:
             print("Goal reached")
-            print("Iterations: ", i)
-            print("steps sum: ", planner.step_cnt)
             break
 
         qrand_raw = sampler.sample()
@@ -116,9 +100,9 @@ try:
 
         if response.data.get('timeout', False):
             print("Timeout")
-        # if i == 1000:
-        #     # pass
-        #     env.env_method("set_renderer", renderer)
+        # if i == 5000:
+            # pass
+            # env.env_method("set_renderer", renderer)
 
         s_wrapper.save_to_storage(response)
         if i % 100 == 0:

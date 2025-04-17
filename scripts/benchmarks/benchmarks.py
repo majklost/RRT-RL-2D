@@ -20,7 +20,7 @@ from rrt_rl_2D.utils.save_manager import load_manager, get_run_paths
 from rrt_rl_2D.RL import *
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 from rrt_rl_2D.utils.seed_manager import init_manager
-from rrt_rl_2D.manual_models import BaseManualModel
+from rrt_rl_2D.manual_models import LinearModel, BaseManualModel
 from rrt_rl_2D.manual_models.blend_manual import BlendManualModel
 
 MAX_STEPS_NUM = 400_000
@@ -90,9 +90,6 @@ def blender(map_name, cfg: StandardConfig, run_number=3, model_wieghts="model_be
 def cable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
-    class LinearModel(BaseManualModel):
-        def predict(self, obs, **kwargs):
-            return obs, None
     ctrl_idxs = kwargs.get('ctrl_idxs', None)
     if ctrl_idxs is not None:
         raise NotImplementedError("Controlled nodes not implemented")
@@ -143,10 +140,6 @@ def cable_RL(map_name, cfg: StandardConfig, **kwargs):
 
 def radius_dummy(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = cfg['cable_length'] // 2
-
-    class LinearModel(BaseManualModel):
-        def predict(self, obs, **kwargs):
-            return obs, None
 
     maker_factory = CableRadiusMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.analyzable()
@@ -214,9 +207,6 @@ def rect_fnc(map_name, cfg: StandardConfig, **kwargs):
 def one_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
-    class LinearModel(BaseManualModel):
-        def predict(self, obs, **kwargs):
-            return obs, None
     ctrl_idxs = kwargs.get('ctrl_idxs', None)
     if ctrl_idxs is not None:
         raise NotImplementedError("Controlled nodes not implemented")
@@ -243,9 +233,6 @@ def one_controllable(map_name, cfg: StandardConfig, **kwargs):
 def two_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
-    class LinearModel(BaseManualModel):
-        def predict(self, obs, **kwargs):
-            return obs, None
     ctrl_idxs = kwargs.get('ctrl_idxs', None)
     if ctrl_idxs is not None:
         raise NotImplementedError("Controlled nodes not implemented")
@@ -273,9 +260,7 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
 def five_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
-    class LinearModel(BaseManualModel):
-        def predict(self, obs, **kwargs):
-            return obs, None
+
     ctrl_idxs = kwargs.get('ctrl_idxs', None)
     if ctrl_idxs is not None:
         raise NotImplementedError("Controlled nodes not implemented")

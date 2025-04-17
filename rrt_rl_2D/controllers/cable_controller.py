@@ -6,7 +6,7 @@ from .direct_controller import DirectController
 from ..assets import *
 
 
-class CableController(DirectController):
+class MultiBodyController(DirectController):
     def __init__(self, cable: Cable, moving_force=300, color_change=True):
         self.cable = cable
         self.current = 0

@@ -5,7 +5,7 @@ import pygame
 
 from rrt_rl_2D.maps import *
 from rrt_rl_2D.rendering.debug_renderer import DebugRenderer
-from rrt_rl_2D.controllers.cable_controller import CableController
+from rrt_rl_2D.controllers.cable_controller import MultiBodyController
 from rrt_rl_2D.controllers.singlebody_controller import SinglebodyController
 from rrt_rl_2D.simulator.standard_config import STANDARD_CONFIG
 
@@ -20,7 +20,7 @@ for map_cls in map_classes:
     sim = m.sim
     dr = DebugRenderer()
     # controller = SinglebodyController(m.agent)
-    controller = CableController(m.agent)
+    controller = MultiBodyController(m.agent)
 
     dr.attach_controller(controller)
     sim.attach_renderer(dr)

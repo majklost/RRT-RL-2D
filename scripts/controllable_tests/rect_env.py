@@ -1,4 +1,5 @@
-# Give goal and start points to the environment
+"""Move the rectangle with arrow keys"""
+
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env.vec_normalize import VecNormalize
 
@@ -15,14 +16,9 @@ s['seed_env'] = 27
 s['seed_plan'] = 20
 
 
-nm = VelNodeManager(cfg=s)
-
-
-maker_factory = RectMaker('Empty', s, resetable=True)
+maker_factory = RectMaker('AlmostEmpty', s, resetable=True)
 maker, maker_name, _ = maker_factory.first_try()
 
-goal = GoalNode(
-    (s['width'] - 200, s['height'] // 2), threshold=250)
 env = create_multi_env(maker, 1, normalize=False)
 controller = RectEnvController()
 renderer = EnvRenderer(s)
@@ -30,11 +26,6 @@ renderer._delayed_init()
 env.env_method("set_renderer", renderer)
 
 cur_map = env.env_method("get_map")[0]
-# env.env_method("import_goal", goal)
-# states = env.env_method("export_state")
-# state = states[0]
-# env.env_method("import_start", state)
-
 obs = env.reset()
 
 
@@ -46,6 +37,5 @@ for i in range(10000):
     if done[0]:
         print(cur_map.agent.collision_data)
         print(info)
-        # env.env_method("import_start", state)
         obs = env.reset()
     env.render()
