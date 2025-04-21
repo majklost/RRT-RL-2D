@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from ...RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name
+from ...RL.training_utils import standard_wrap, create_multi_env, create_callback_list, get_name, get_caller_name
 from ...envs import *
 from ...utils.seed_manager import init_manager
 from ...simulator.standard_config import STANDARD_CONFIG
@@ -183,6 +183,36 @@ class BlendMaker(_Maker):
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
+    def _controllable_maker(self, ctrl_idxs):
+        cur_map_cls = self._map_helper()
+        self.cfg = self._cfg_helper()
+
+        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
+        nm.wanted_threshold = self.cfg['threshold']
+
+        def raw_maker():
+            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
+            return self._resetable_decision()(cur_map, self._determine_force(idx=ctrl_idxs), nm, render_mode=self.render_mode)
+
+        maker = standard_wrap(raw_maker, max_episode_steps=1000)
+        return maker, get_caller_name(type(self).__name__ + '='), {"nm": nm}
+
+    def one_controllable_analyzable(self, **kwargs):
+        ctrl_idxs = [0]
+        return self._controllable_maker(ctrl_idxs)
+
+    def two_controllable_analyzable(self, **kwargs):
+        ctrl_idxs = [0, self.cfg['seg_num'] - 1]
+        return self._controllable_maker(ctrl_idxs)
+
+    def five_controllable_analyzable(self, **kwargs):
+        middle_idx = self.cfg['seg_num'] // 2
+        left_middle_idx = middle_idx // 2
+        right_middle_idx = middle_idx + left_middle_idx
+        ctrl_idxs = [0, left_middle_idx, middle_idx,
+                     right_middle_idx, self.cfg['seg_num'] - 1]
+        return self._controllable_maker(ctrl_idxs)
+
 
 class BlendStrengthMaker(BlendMaker):
     def _resetable_class(self):
@@ -225,10 +255,10 @@ class StandardCableMaker(_Maker):
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
         return maker, get_name(type(self).__name__ + '='), {"nm": nm}
 
-    def one_controllable_analyzable(self, **kwargs):
+    def _controllable_maker(self, ctrl_idxs):
         cur_map_cls = self._map_helper()
         self.cfg = self._cfg_helper()
-        ctrl_idxs = [0]
+
         nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
         nm.wanted_threshold = self.cfg['threshold']
 
@@ -237,40 +267,23 @@ class StandardCableMaker(_Maker):
             return self._resetable_decision()(cur_map, self._determine_force(idx=ctrl_idxs), nm, render_mode=self.render_mode)
 
         maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+        return maker, get_caller_name(type(self).__name__ + '='), {"nm": nm}
+
+    def one_controllable_analyzable(self, **kwargs):
+        ctrl_idxs = [0]
+        return self._controllable_maker(ctrl_idxs)
 
     def two_controllable_analyzable(self, **kwargs):
-        cur_map_cls = self._map_helper()
-        self.cfg = self._cfg_helper()
         ctrl_idxs = [0, self.cfg['seg_num'] - 1]
-        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
-        nm.wanted_threshold = self.cfg['threshold']
-
-        def raw_maker():
-            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
-            return self._resetable_decision()(cur_map, self._determine_force(idx=ctrl_idxs), nm, render_mode=self.render_mode)
-
-        maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+        return self._controllable_maker(ctrl_idxs)
 
     def five_controllable_analyzable(self, **kwargs):
-        cur_map_cls = self._map_helper()
-        self.cfg = self._cfg_helper()
-
         middle_idx = self.cfg['seg_num'] // 2
         left_middle_idx = middle_idx // 2
         right_middle_idx = middle_idx + left_middle_idx
         ctrl_idxs = [0, left_middle_idx, middle_idx,
                      right_middle_idx, self.cfg['seg_num'] - 1]
-        nm = ControllableManager(self.cfg, ctrl_idxs=ctrl_idxs)
-        nm.wanted_threshold = self.cfg['threshold']
-
-        def raw_maker():
-            cur_map = cur_map_cls(self.cfg, sim_cls=SimulatorA)
-            return self._resetable_decision()(cur_map, self._determine_force(idx=ctrl_idxs), nm, render_mode=self.render_mode)
-
-        maker = standard_wrap(raw_maker, max_episode_steps=1000)
-        return maker, get_name(type(self).__name__ + '='), {"nm": nm}
+        return self._controllable_maker(ctrl_idxs)
 
     def analyzable(self, **kwargs):
         cur_map_cls = self._map_helper()
