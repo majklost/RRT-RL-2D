@@ -217,10 +217,6 @@ def rect_fnc(map_name, cfg: StandardConfig, **kwargs):
 def one_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
 
-    ctrl_idxs = kwargs.get('ctrl_idxs', None)
-    if ctrl_idxs is not None:
-        raise NotImplementedError("Controlled nodes not implemented")
-
     maker_factory = StandardCableMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.one_controllable_analyzable()
     node_manager = stuff['nm']
@@ -242,10 +238,6 @@ def one_controllable(map_name, cfg: StandardConfig, **kwargs):
 
 def two_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
-
-    ctrl_idxs = kwargs.get('ctrl_idxs', None)
-    if ctrl_idxs is not None:
-        raise NotImplementedError("Controlled nodes not implemented")
 
     maker_factory = StandardCableMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.two_controllable_analyzable()
@@ -269,10 +261,6 @@ def two_controllable(map_name, cfg: StandardConfig, **kwargs):
 
 def five_controllable(map_name, cfg: StandardConfig, **kwargs):
     cfg['threshold'] = 20
-
-    ctrl_idxs = kwargs.get('ctrl_idxs', None)
-    if ctrl_idxs is not None:
-        raise NotImplementedError("Controlled nodes not implemented")
 
     maker_factory = StandardCableMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.five_controllable_analyzable()
@@ -299,6 +287,85 @@ def blendManual(map_name, cfg: StandardConfig, **kwargs):
 
     maker_factory = BlendMaker(map_name, cfg)
     maker, maker_name, stuff = maker_factory.analyzable()
+    node_manager = stuff['nm']
+    model = BlendManualModel(cfg['seg_num'])
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def blendManual20(map_name, cfg: StandardConfig, **kwargs):
+    cfg['seg_num'] = 20
+    return blendManual(map_name, cfg, **kwargs)
+
+
+def blendManual30(map_name, cfg: StandardConfig, **kwargs):
+    cfg['seg_num'] = 30
+    return blendManual(map_name, cfg, **kwargs)
+
+
+def blendManualOneControllable(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = BlendMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.one_controllable_analyzable()
+    node_manager = stuff['nm']
+    model = BlendManualModel(cfg['seg_num'])
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def blendManualTwoControllable(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = BlendMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.two_controllable_analyzable()
+    node_manager = stuff['nm']
+    model = BlendManualModel(cfg['seg_num'])
+    env = create_multi_env(maker, 1, normalize=False)
+    cur_map = env.env_method("get_map")[0]
+    sampler = BezierSampler(cur_map.agent.length, cfg['seg_num'], (0, 0, 0),
+                            (cfg["width"], cfg["height"], 2 * np.pi))
+    ret: Returns = {
+        "env": env,
+        "model": model,
+        "sampler": sampler,
+        "node_manager": node_manager,
+        "cur_map": cur_map,
+        "cfg": cfg,
+        "maker_name": maker_name
+    }
+    return ret
+
+
+def blendManualFiveControllable(map_name, cfg: StandardConfig, **kwargs):
+    cfg['threshold'] = 20
+
+    maker_factory = BlendMaker(map_name, cfg)
+    maker, maker_name, stuff = maker_factory.five_controllable_analyzable()
     node_manager = stuff['nm']
     model = BlendManualModel(cfg['seg_num'])
     env = create_multi_env(maker, 1, normalize=False)
@@ -495,6 +562,11 @@ TXT2MODEL = {
     "FiveControl": five_controllable,
     "Cable20": cable20,
     "Cable30": cable30,
+    "BlendManual20": blendManual20,
+    "BlendManual30": blendManual30,
+    "BlendManualOneControl": blendManualOneControllable,
+    "BlendManualTwoControl": blendManualTwoControllable,
+    "BlendManualFiveControl": blendManualFiveControllable,
 }
 
 

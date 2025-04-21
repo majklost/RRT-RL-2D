@@ -8,7 +8,7 @@ from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 cfg = STANDARD_CONFIG.copy()
 cfg['threshold'] = 20
 maker, maker_name, _ = BlendMaker(
-    'StandardStones', cfg, resetable=True).first_try()
+    'NonConvex', cfg, resetable=True).first_try()
 env = create_multi_env(maker, 1, normalize=False)
 cur_map = env.env_method('get_map')[0]
 model = BlendManualModel(cfg['seg_num'])
