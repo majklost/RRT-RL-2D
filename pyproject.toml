@@ -1,3 +1,24 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "rrt_rl_2D"
+version = "0.1"
+description = "2D RRT with Reinforcement Learning"
+authors = [
+    { name="Michal Mrkos", email="mrkosmic@fel.cvut.cz" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "gymnasium",
+    "numpy",
+    "stable-baselines3",
+    "pymunk",
+    "pygame",
+    "tensorboard",
+    "optuna"
+]
+
+[project.urls]
+Homepage = "https://github.com/majklost/RRT-RL-2D"
