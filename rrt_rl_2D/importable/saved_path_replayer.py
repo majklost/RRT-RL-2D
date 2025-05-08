@@ -11,10 +11,11 @@ import warnings
 
 
 class SavePathReplayer:
-    def __init__(self, fpath: Path):
+    def __init__(self, fpath: Path, renderer=None):
         self.fpath = fpath
         self.pickled_path = None
         self.fdata = None
+        self.renderer = renderer
         self._get_filedata()
 
     def _get_filedata(self):
@@ -119,7 +120,8 @@ class SavePathReplayer:
                     return
 
     def replay(self):
-        self.renderer = DebugRenderer(self.fdata['cfg'])
+        if self.renderer is None:
+            self.renderer = DebugRenderer(self.fdata['cfg'])
         self._process_data()
         self._show_path_nodes()
         maker_name = self.fdata['maker_name']

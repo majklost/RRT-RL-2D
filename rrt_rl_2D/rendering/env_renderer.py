@@ -25,11 +25,14 @@ class EnvRenderer(BaseRenderer):
         width = self.cfg['width']
         height = self.cfg['height']
         self.fps = self.cfg['fps']
-        self.screen = pygame.display.set_mode((width, height))
+        self.screen = self._get_display(width, height)
         self.clock = pygame.time.Clock()
         self.options = DrawOptions(self.screen)
         self.options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
         self.font = self._create_font()
+
+    def _get_display(self, w, h):
+        return pygame.display.set_mode((w, h))
 
     def register_callback(self, clb):
         self.clbs.append(clb)
@@ -37,6 +40,10 @@ class EnvRenderer(BaseRenderer):
     def _additional_render(self, screen):
         for clb in self.clbs:
             clb(screen, self.font)
+
+    def _send_to_display(self):
+        self.clock.tick(self.fps)
+        pygame.display.flip()
 
     def render(self, simulator):
         if not self.initiated:
@@ -46,8 +53,7 @@ class EnvRenderer(BaseRenderer):
         self.screen.fill((255, 255, 255))
         self._additional_render(self.screen)
         simulator.draw_on(self.options)
-        self.clock.tick(self.fps)
-        pygame.display.flip()
+        self._send_to_display()
 
     def close(self):
         pygame.display.quit()
