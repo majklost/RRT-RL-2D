@@ -5,6 +5,7 @@ archived/
 .vscode/
 .VSCodeCounter/*
 *.rpath
+*.pgf
 
 .VSCodeCounte/
 # Byte-compiled / optimized / DLL files
@@ -178,3 +179,4 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+scripts/analytics/plots
