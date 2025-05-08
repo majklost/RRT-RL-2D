@@ -16,7 +16,7 @@ class DebugRenderer(BaseRenderer):
         self._fps = cfg['fps']
         w = cfg['width']
         h = cfg['height']
-        self.display = pygame.display.set_mode((w, h))
+        self.display = self._get_display(w, h)
         self.cur_scene = pygame.surface.Surface((w, h))
         self._options = DrawOptions(self.cur_scene)
         self._one_time_canvas = pygame.surface.Surface((w, h))
@@ -42,11 +42,10 @@ class DebugRenderer(BaseRenderer):
         for clb in self.clbks:
             clb(self.cur_scene, self._font)
 
-    def render(self, simulator: Simulator):
-        self.cur_scene.blit(self._one_time_canvas, (0, 0))
-        self._additional_drawings()
-        simulator.draw_on(self._options)
+    def _get_display(self, w, h):
+        return pygame.display.set_mode((w, h))
 
+    def _send_to_display(self):
         self.display.blit(self.cur_scene, (0, 0))
         pygame.display.update()
         if self._realtime:
@@ -56,8 +55,18 @@ class DebugRenderer(BaseRenderer):
         else:
             self._mark_end_custom()
 
+    def render(self, simulator: Simulator):
+        self.cur_scene.blit(self._one_time_canvas, (0, 0))
+        self._additional_drawings()
+        simulator.draw_on(self._options)
+        self._send_to_display()
+
+    def _end(self):
+        self._running = False
+        pygame.quit()
+        exit(0)
+
     def _mark_end_custom(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit(0)
+                self._end()

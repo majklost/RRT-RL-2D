@@ -6,6 +6,7 @@ archived/
 .VSCodeCounter/*
 *.rpath
 *.pgf
+videos/*
 
 .VSCodeCounte/
 # Byte-compiled / optimized / DLL files
