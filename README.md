@@ -37,9 +37,9 @@ pip install .
 python ./scripts/controllable_tests/rect_env.py
 ```
 
+6. (Optional)
+   If one want to train RL agents, a manager and folder for experiments are created by running
 
-## Importing RL models
-
-
-## Importing experiments
-
+```bash
+python ./scripts/init_RL.py
+```

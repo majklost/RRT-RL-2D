@@ -12,6 +12,7 @@ class MultiBodyController(DirectController):
         self.current = 0
         self.moving_force = moving_force
         self.color_change = color_change
+        self.esc_pressed = False
 
     def _cur_next(self):
         new_idx = (self.current + 1) % len(self.cable.bodies)
@@ -54,6 +55,8 @@ class MultiBodyController(DirectController):
                             break
 
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            self.esc_pressed = True
         if keys[pygame.K_LEFT]:
             force_template[0] = -self.moving_force
         if keys[pygame.K_RIGHT]:

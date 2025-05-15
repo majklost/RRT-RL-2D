@@ -7,17 +7,7 @@ from ..utils.common_utils import rot_matrix
 from .multibody import MultiBody
 from .rectangle import Rectangle
 from .circle import Circle
-
-
-class SpringParams:
-
-    def __init__(self, stiffness, damping):
-        self.stiffness = stiffness
-        self.damping = damping
-
-
-STANDARD_StructuralSpringParams = SpringParams(20, 20)
-STANDARD_ShearSpringParams = SpringParams(3, 5)
+from .spring_params import STANDARD_StructuralSpringParams, STANDARD_ShearSpringParams
 
 
 class Foam(MultiBody):

@@ -195,3 +195,24 @@ class FoamEmpty(Empty):
                           masspoint_per_length=.02, mass_radius=10)
 
         self.movable_objects.append(self.agent)
+
+
+class SpringEmpty(Empty):
+    """
+    When added as superclass before Empty, it will create a foam agent instead of a cable.
+    Must be placed before Empty in the inheritance list.
+    Must be placed before ResetableEmpty in the inheritance list.
+    """
+
+    def _get_width(self):
+        return 200
+
+    def _get_height(self):
+        return 300
+
+    def _add_agent(self):
+        self.agent = SpringCable(
+            self.START, self.cfg["cable_length"], self.cfg["seg_num"], thickness=5, angle=np.pi / 2)
+        self.agent.color = (0, 0, 255)
+        self.agent.set_collision_type(1)
+        self.movable_objects.append(self.agent)
