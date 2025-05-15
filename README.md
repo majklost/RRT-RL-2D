@@ -25,7 +25,21 @@ python -m venv .venv
 ```
 
 4. Install the framework via
-```bash
+
+```sh
 pip install .
 ```
+
+5. (Optional)
+   One can verify the installation by running
+
+```bash
+python ./scripts/controllable_tests/rect_env.py
+```
+
+
+## Importing RL models
+
+
+## Importing experiments
 

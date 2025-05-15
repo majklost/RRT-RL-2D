@@ -61,7 +61,7 @@ def calcHeatmap(data_dir, data_range=None, normalize=True):
             val_cnt += len(x_vals)
             heatmap[x_vals, y_vals] += 1
     if normalize:
-        heatmap = heatmap / val_cnt
+        heatmap = np.log(heatmap / val_cnt + 1)
     print(f"Total values: {val_cnt}")
     return heatmap
 
