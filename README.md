@@ -45,7 +45,7 @@ python ./scripts/controllable_tests/rect_env.py
 cd test_rrt
 chmod +x ./test_rrt.sh
 ./test_rrt.sh
-python ../scripts/play_rpath.py ./PlannedPath.rpath
+python ../scripts/play_rpath.py ./Test.rpath
 ```
 
 7. (Optional)
