@@ -22,3 +22,6 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/majklost/RRT-RL-2D"
+
+[tool.setuptools.packages.find]
+where = ["."]

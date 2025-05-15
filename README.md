@@ -32,12 +32,23 @@ pip install .
 
 5. (Optional)
    One can verify the installation by running
+   You should be able to move the rectangle with arrow keys
 
 ```bash
 python ./scripts/controllable_tests/rect_env.py
 ```
 
 6. (Optional)
+   For quick testing of planning via RRT, you can use
+
+```bash
+cd test_rrt
+chmod +x ./test_rrt.sh
+./test_rrt.sh
+python ../scripts/play_rpath.py ./PlannedPath.rpath
+```
+
+7. (Optional)
    If one want to train RL agents, a manager and folder for experiments are created by running
 
 ```bash
