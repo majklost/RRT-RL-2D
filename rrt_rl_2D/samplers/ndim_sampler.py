@@ -6,6 +6,9 @@ from ..utils.seed_manager import manager
 
 
 class NDIMSampler(BaseSampler):
+    """
+    Basic sampler for n-dimensional space.
+    """
     def __init__(self, lower_bounds: np.array, upper_bounds: np.array):
         super().__init__()
         self.lower_bounds = lower_bounds

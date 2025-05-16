@@ -7,6 +7,11 @@ from ..assets import *
 
 
 class MultiBodyController(DirectController):
+    """
+    Control a MutliBody object with keyboard input.
+    """
+
+
     def __init__(self, cable: Cable, moving_force=300, color_change=True):
         self.cable = cable
         self.current = 0

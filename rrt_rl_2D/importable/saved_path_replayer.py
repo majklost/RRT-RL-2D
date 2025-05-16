@@ -11,6 +11,10 @@ import warnings
 
 
 class SavePathReplayer:
+    """
+    Replay path save by VelPathSaver
+    """
+
     def __init__(self, fpath: Path, renderer=None):
         self.fpath = fpath
         self.pickled_path = None

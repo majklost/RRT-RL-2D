@@ -9,6 +9,10 @@ from .rectangle import Rectangle
 
 
 class Cable(MultiBody):
+    """
+    Main implementation of the cable object with rotary joints.
+    """
+
     def __init__(self, pos, length, num_links, thickness, angle=0, max_angle=np.pi / 2):
         super().__init__()
         self.angle = angle

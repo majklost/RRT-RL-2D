@@ -7,6 +7,9 @@ from ..utils.seed_manager import manager
 
 
 class RandomObstacleGroup(MultiBody):
+    """
+    Spawns a group of random obstacles in a grid pattern.
+    """
 
     def __init__(self, pos: np.array, VSep: int,
                  HSep: int,

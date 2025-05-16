@@ -8,6 +8,10 @@ import time
 
 
 class VelPathReplayer:
+    """
+    Base class for replaying found path
+    """
+
     def __init__(self, cur_map: Empty, path: BasePath, ):
         self.map = cur_map
         self.path = path
@@ -33,6 +37,10 @@ class VelPathReplayer:
 
 
 class VelPathReplayerRect(VelPathReplayer):
+    """
+    Replayer for path with rectangular agent
+    """
+
     def draw(self, screen, font):
         for node in self.path.nodes:
             pygame.draw.circle(screen, (0, 255, 0), node.agent_pos, 5)
@@ -43,6 +51,10 @@ class VelPathReplayerRect(VelPathReplayer):
 
 
 class VelPathReplayerCable(VelPathReplayer):
+    """
+    Replayer for path with cable agent
+    """
+
     def draw(self, screen, font):
         for node in self.path.nodes:
             for p in node.agent_pos:

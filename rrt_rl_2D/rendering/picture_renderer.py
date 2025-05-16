@@ -10,6 +10,10 @@ from ..simulator.standard_config import STANDARD_CONFIG
 
 
 class PictureRendererDebug(DebugRenderer):
+    """
+    Render video from simulator
+    """
+
     def __init__(self, picture_dir: Path, max_frames=2000, cfg=STANDARD_CONFIG, video_path=None, **kwargs):
         self._picture_dir = picture_dir
         self._video_path = video_path
@@ -46,6 +50,10 @@ class PictureRendererDebug(DebugRenderer):
 
 
 class PictureRendererEnv(EnvRenderer):
+    """
+    Render video from Environment
+    """
+
     def __init__(self, picture_dir: Path, max_frames=2000, cfg=STANDARD_CONFIG, video_path=None, **kwargs):
         self._picture_dir = picture_dir
         self._video_path = video_path

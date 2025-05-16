@@ -20,6 +20,10 @@ def default(obj):
 
 
 class VelPathSaver:
+    """
+    Saves the path to a file.
+    """
+
     def __init__(self, maker_name: str, path, cfg: dict, map_name: str, data: dict, script_name: Path):
 
         self.maker_name = maker_name

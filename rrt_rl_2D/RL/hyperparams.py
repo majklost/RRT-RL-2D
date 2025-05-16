@@ -56,7 +56,7 @@ def give_args(trial):
 # What to track batch_size, n_envs,
 
 
-# FOR REFERENCE
+# FOR REFERENCE FROM RL ZOO
 # def sample_ppo_params(trial: optuna.Trial, n_actions: int, n_envs: int, additional_args: dict) -> dict[str, Any]:
 #     """
 #     Sampler for PPO hyperparams.

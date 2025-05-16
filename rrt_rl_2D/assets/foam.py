@@ -11,6 +11,9 @@ from .spring_params import STANDARD_StructuralSpringParams, STANDARD_ShearSpring
 
 
 class Foam(MultiBody):
+    """
+    2D foam object with mass points and springs.
+    """
 
     def __init__(self, position: np.array, dimensions: np.array, masspoint_per_length, mass_radius=5, structStringParams=STANDARD_StructuralSpringParams, shearSpringParams=STANDARD_ShearSpringParams, **kwargs):
         super().__init__(**kwargs)

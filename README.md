@@ -54,3 +54,13 @@ python ../scripts/play_rpath.py ./Test.rpath
 ```bash
 python ./scripts/init_RL.py
 ```
+
+## Repository information
+
+Repository has 3 big parts:
+
+- **`rrt_rl_2D/`** - a reusable framework with modular components, commented code
+- **`rrt_rl_2D/Client`** - client parts tailored for current experiments and their analysis, custom makers for experiments. Used when a given code was needed to be imported by multiple scripts.
+- **`scripts/`** - user scripts for evaluation, testing of framework, processing analytical data, experimenting. They are not imported anywhere. They can serve as examples of usage of framework.
+
+There is also folder `bash_scripts`. In this folder there are script, which were used for uploading and fetching RL experiments to compute cluster.

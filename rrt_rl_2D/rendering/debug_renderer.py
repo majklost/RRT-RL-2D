@@ -9,6 +9,10 @@ from .base_renderer import BaseRenderer
 
 
 class DebugRenderer(BaseRenderer):
+    """
+    A renderer that can be attached to Simulator directly
+    """
+
     def __init__(self, cfg=STANDARD_CONFIG, render_constraints=False, realtime=True):
         self._render_constraints = render_constraints
         self._realtime = realtime

@@ -7,5 +7,9 @@ from .circle import Circle
 from .foam import Foam
 from .springCable import SpringCable
 
+"""
+Different objects used in the map.
+"""
+
 __all__ = ["Boundings", "Rectangle", "Cable",
            "RandomBlock", "RandomObstacleGroup", "Circle", "Foam", "SpringCable"]

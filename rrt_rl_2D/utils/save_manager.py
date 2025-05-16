@@ -8,6 +8,10 @@ import json
 import warnings
 # No need for object now
 
+"""
+For structuring Reinforcement Learning experiments, so they are easily uploaded to compute cluster and back
+"""
+
 
 class PathsDict(TypedDict):
     tb: Path

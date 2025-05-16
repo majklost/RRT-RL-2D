@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+#Batch used for RL learning on compute cluster.
 #SBATCH --partition=cpu
 #SBATCH --time=9:00:00
 #SBATCH --nodes=1 --ntasks=1 --cpus-per-task=1

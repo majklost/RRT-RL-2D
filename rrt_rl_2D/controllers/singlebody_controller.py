@@ -7,6 +7,10 @@ from ..assets import *
 
 
 class SinglebodyController(DirectController):
+
+    """
+    Control a SingleBody object with keyboard input. E.g. a rectangle or a circle.
+    """
     def __init__(self, rect: Rectangle, moving_force=2000):
         self.rect = rect
         self.moving_force = moving_force

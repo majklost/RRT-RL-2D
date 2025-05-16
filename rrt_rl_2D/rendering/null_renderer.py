@@ -5,6 +5,10 @@ if TYPE_CHECKING:
 
 
 class NullRenderer(BaseRenderer):
+    """
+    Dummy renderer that does nothing.
+    """
+
     def render(self, simulator: 'Simulator'):
         pass
 

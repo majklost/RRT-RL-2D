@@ -3,6 +3,10 @@ from .base_model import BaseManualModel
 
 
 class BlendManualModel(BaseManualModel):
+    """
+    Best manual model so far
+    """
+
     def __init__(self, segnum):
         self.segnum = segnum
         self.d = 0.15

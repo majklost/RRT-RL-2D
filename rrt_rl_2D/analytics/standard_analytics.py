@@ -17,7 +17,7 @@ class EnvTimes(TypedDict):
 
 class StandardAnalytics(TypedDict):
     """
-    Standard analytics.
+    Standard analytics. For later processing
     """
     finished: bool  # whether the goal was reached
     iterations: int  # number of RRT iterations

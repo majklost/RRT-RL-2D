@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class BaseStorage(ABC):
+    """
+    Storage for the nodes of the tree.
+    """
+
     def __init__(self, distancefnc):
         self.distancefnc = distancefnc
 

@@ -3,6 +3,10 @@ from ..nodes.goal_node import GoalNode
 
 
 class ControllableManager(VelNodeManager):
+    """
+    Allow control of only some of the nodes.
+    """
+
     def __init__(self, cfg, ctrl_idxs=None):
         self.ctrl_idxs = ctrl_idxs
         super().__init__(cfg)

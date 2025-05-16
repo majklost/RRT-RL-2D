@@ -3,6 +3,10 @@ import numpy as np
 
 
 class CollisionData:
+    """
+    Collision data for a single collision
+    """
+
     def __init__(self, normal, other_shape, other_body, my_body_idx, other_body_idx):
         self.stamp = np.random.randint(0, 1000000)
         self.normal = np.array([normal[0], normal[1]])

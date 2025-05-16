@@ -6,6 +6,10 @@ from ..simulator.collision_data import CollisionData
 
 
 class MultiBody:
+    """
+    Many bodies that are connected by constraints
+    """
+
     def __init__(self, track_colisions=False, ignore_neighbour_collision=True):
         super().__init__()
         self.bodies = []  # type: List[SingleBody]

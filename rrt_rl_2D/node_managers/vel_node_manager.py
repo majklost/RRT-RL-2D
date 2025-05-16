@@ -4,6 +4,10 @@ import numpy as np
 
 
 class VelNodeManager(NodeManager):
+    """
+    Create nodes with velocity buffer, so they can be replayed later
+    """
+
     def __init__(self, cfg):
         super().__init__(cfg)
         self.velocity_buffer = []

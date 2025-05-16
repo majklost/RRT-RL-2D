@@ -5,7 +5,17 @@ _MANAGER = None
 
 
 class _SeedManager:
+    """
+    Manager of seeds for the environment and the planner.
+    Registers components and whether they belong to environment or planner.
+    """
+
     def __init__(self, seed_env, seed_plan, garden=dict, verbose=True):
+        """
+        :param seed_env: Seed for the environment
+        :param seed_plan: Seed for the planner (planning function)
+        :param garden: Dictionary of seeds for components (if exact seed is needed)
+        """
         self.verbose = verbose
         if verbose and seed_env is None:
             print("Environment will not be deterministic")

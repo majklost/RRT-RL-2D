@@ -7,6 +7,9 @@ from ..utils.common_utils import rot_matrix
 
 
 class SingleBody:
+    """
+    Base class for objects where where no constraints are used
+    """
     def __init__(self, body_type, track_collisions=True):
         super().__init__()
         self._collision_data = None  # type: CollisionData

@@ -5,6 +5,11 @@ from rrt_rl_2D.CLIENT import *
 from rrt_rl_2D.RL.training_utils import create_multi_env
 from rrt_rl_2D.rendering.env_renderer import EnvRenderer
 
+"""
+First experiment with blend manual model
+"""
+
+
 cfg = STANDARD_CONFIG.copy()
 cfg['threshold'] = 20
 maker, maker_name, _ = BlendMaker(

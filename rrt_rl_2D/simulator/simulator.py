@@ -14,6 +14,9 @@ from .collision_data import CollisionData
 
 
 class Simulator:
+    """
+    A wrapper around pymunk space, handling the simulation, collision registration, etc...
+    """
 
     def __init__(self, movable_objects, fixed_objects, config: dict | None = STANDARD_CONFIG):
         self._space = pymunk.Space()
