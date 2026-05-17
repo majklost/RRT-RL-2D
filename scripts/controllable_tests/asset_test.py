@@ -24,18 +24,19 @@ RENDER_CONSTRAINTS = False
 
 
 # For Cable testing
-class MyMap(Piped):
+class MyMap(ThickStones):
     pass
+
 
 # Spring Cable
 
 
-class MyMap(SpringEmpty, Piped):
-    pass
+# class MyMap(SpringEmpty, Piped):
+#     pass
 
 
 cfg = STANDARD_CONFIG.copy()
-cfg['seg_num'] = 20
+cfg["seg_num"] = 20
 m = MyMap(cfg)
 sim = m.sim
 dr = DebugRenderer(render_constraints=RENDER_CONSTRAINTS)
