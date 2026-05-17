@@ -11,11 +11,11 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "gymnasium",
-    "numpy",
-    "stable-baselines3",
-    "pymunk",
-    "pygame",
+    "gymnasium==1.0.0",
+    "numpy==2.2.3",
+    "stable-baselines3==2.5.0",
+    "pymunk==6.11.1",
+    "pygame==2.6.1",
     "tensorboard",
     "optuna"
 ]
